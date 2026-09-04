@@ -1,0 +1,66 @@
+name: minipay-frontend
+
+services:
+  merchant-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: minipay-merchant-web:local
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - "127.0.0.1:${MERCHANT_WEB_HOST_PORT:-18080}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+  ops-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        WEB_PACKAGE: "@minipay/ops-web"
+        WEB_DIR: apps/ops-web
+        NGINX_CONFIG: docker/ops-nginx.conf
+    image: minipay-ops-web:local
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - "127.0.0.1:${OPS_WEB_HOST_PORT:-18081}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+  admin-web:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      args:
+        WEB_PACKAGE: "@minipay/admin-web"
+        WEB_DIR: apps/admin-web
+        NGINX_CONFIG: docker/admin-nginx.conf
+    image: minipay-admin-web:local
+    restart: unless-stopped
+    networks:
+      - backend
+    ports:
+      - "127.0.0.1:${ADMIN_WEB_HOST_PORT:-18082}:8080"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://127.0.0.1:8080/healthz"]
+      interval: 15s
+      timeout: 3s
+      retries: 5
+      start_period: 15s
+
+networks:
+  backend:
+    external: true
+    name: minipay_default

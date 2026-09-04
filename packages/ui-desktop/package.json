@@ -1,0 +1,14 @@
+{
+  "name": "@minipay/ui-desktop",
+  "version": "0.1.0",
+  "private": true,
+  "peerDependencies": {
+    "react": "^18.0.0"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.23"
+  },
+  "exports": {
+    ".": "./src/index.tsx"
+  }
+}

@@ -1,0 +1,14 @@
+.card { border-radius: 8px; border: 1px solid #eaecf0; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04); }
+.header h3 { margin: 0 0 6px !important; color: #101828; }
+.header p { margin: 0; color: #667085; }
+.filters { margin: 24px 0 16px; padding: 16px; border-radius: 8px; background: #f8fafc; }
+.filters :global(.ant-input-affix-wrapper) { width: 260px; }
+.filters :global(.ant-select) { width: 160px; }
+.profileAlert { margin-bottom: 20px; }
+.table :global(.ant-table-cell) { white-space: normal; overflow-wrap: anywhere; }
+.actions { row-gap: 0 !important; }
+
+@media (max-width: 600px) {
+  .filters :global(.ant-input-affix-wrapper),
+  .filters :global(.ant-select) { width: 100%; }
+}

@@ -1,0 +1,22 @@
+{
+  "name": "minipay-ai-frontend",
+  "version": "0.1.0",
+  "private": true,
+  "packageManager": "pnpm@10.34.5",
+  "scripts": {
+    "build": "pnpm --filter @minipay/consumer-h5 --filter @minipay/ops-web --filter @minipay/merchant-web --filter @minipay/admin-web build",
+    "typecheck": "pnpm --filter @minipay/consumer-h5 --filter @minipay/ops-web --filter @minipay/merchant-web --filter @minipay/admin-web typecheck",
+    "lint": "pnpm exec eslint apps/consumer-h5/src apps/ops-web/src apps/merchant-web/src apps/admin-web/src --ext .ts,.tsx",
+    "test": "pnpm --filter @minipay/api-client --filter @minipay/ops-web test",
+    "e2e": "playwright test",
+    "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"
+  },
+  "devDependencies": {
+    "@eslint/js": "9.29.0",
+    "@playwright/test": "1.62.1",
+    "eslint": "9.29.0",
+    "prettier": "3.5.3",
+    "typescript": "5.8.3",
+    "typescript-eslint": "8.34.0"
+  }
+}

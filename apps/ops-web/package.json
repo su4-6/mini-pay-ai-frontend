@@ -1,0 +1,40 @@
+{
+  "name": "@minipay/ops-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node ../../scripts/run-dev.mjs 8000",
+    "build": "max build",
+    "typecheck": "max setup && tsc -p tsconfig.json",
+    "lint": "eslint src --ext .ts,.tsx",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ant-design/icons": "6.3.2",
+    "@ant-design/plots": "2.6.8",
+    "@minipay/api-client": "workspace:*",
+    "@minipay/api-contracts": "workspace:*",
+    "@minipay/design-tokens": "workspace:*",
+    "@minipay/shared": "workspace:*",
+    "@minipay/ui-desktop": "workspace:*",
+    "@tanstack/react-query": "5.101.4",
+    "@umijs/max": "4.6.82",
+    "antd": "6.5.2",
+    "dayjs": "1.11.13",
+    "react": "18.3.1",
+    "react-dom": "18.3.1",
+    "zustand": "5.0.14"
+  },
+  "devDependencies": {
+    "@testing-library/react": "16.3.0",
+    "@testing-library/user-event": "14.6.1",
+    "@types/amap-js-api": "^1.4.16",
+    "@types/amap-js-api-geocoder": "^1.4.4",
+    "@types/amap-js-api-place-search": "^1.4.4",
+    "@types/react": "18.3.23",
+    "@types/react-dom": "18.3.7",
+    "jsdom": "26.1.0",
+    "less": "4.3.0",
+    "vitest": "3.2.4"
+  }
+}

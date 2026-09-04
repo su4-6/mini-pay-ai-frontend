@@ -1,0 +1,325 @@
+@import '@minipay/design-tokens/less';
+
+.shell {
+  --ops-sidebar-width: @minipay-shell-sidebar;
+  min-height: 100vh;
+  background: @minipay-shell-bg;
+}
+
+.skipLink {
+  position: fixed;
+  top: 8px;
+  left: 12px;
+  z-index: 1001;
+  padding: 10px 14px;
+  border-radius: 4px;
+  color: #fff;
+  background: #0958d9;
+  transform: translateY(-150%);
+}
+
+.skipLink:focus {
+  color: #fff;
+  transform: translateY(0);
+}
+
+.sidebar {
+  position: fixed;
+  inset: 0 auto 0 0;
+  z-index: 20;
+  width: var(--ops-sidebar-width);
+  display: flex;
+  flex-direction: column;
+  color: #475467;
+  background: rgba(255, 255, 255, 0.97);
+  border-right: 1px solid @minipay-shell-border;
+  box-shadow: 8px 0 28px rgba(31, 55, 88, 0.055);
+  transition: width 180ms ease;
+}
+
+.logo {
+  width: 100%;
+  min-height: @minipay-shell-header;
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  padding: 0 18px;
+  overflow: hidden;
+  border: 0;
+  border-bottom: 1px solid #edf1f6;
+  color: #344054;
+  background: #fff;
+  cursor: pointer;
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.logo:hover {
+  color: @minipay-primary;
+  background: #f9fbff;
+}
+
+.logo:focus-visible,
+.desktopCollapse:focus-visible,
+.mobileMenuToggle:focus-visible,
+.headerAction:focus-visible,
+.userButton:focus-visible {
+  outline: 2px solid #69b1ff;
+  outline-offset: -3px;
+}
+
+.sidebarCollapsed .logo {
+  justify-content: center;
+  padding-inline: 0;
+}
+
+.logoMark {
+  width: 34px;
+  height: 34px;
+  display: block;
+  flex: 0 0 auto;
+  border-radius: 10px;
+  box-shadow: 0 5px 14px rgba(22, 119, 255, 0.16);
+}
+
+.logoText {
+  overflow: hidden;
+}
+
+.sidebarFooter {
+  margin: 0 12px 12px;
+  padding: 12px 10px;
+  border-top: 1px solid #edf1f6;
+  color: #98a2b3;
+  font-size: 11px;
+  white-space: nowrap;
+}
+
+.workspace {
+  min-height: 100vh;
+  margin-left: var(--ops-sidebar-width);
+  transition: margin-left 180ms ease;
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  height: @minipay-shell-header;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 20px 0 8px;
+  background: rgba(255, 255, 255, 0.92);
+  border-bottom: 1px solid @minipay-shell-border;
+  backdrop-filter: blur(14px);
+}
+
+.headerStart,
+.headerEnd {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.desktopCollapse,
+.mobileMenuToggle,
+.headerAction {
+  width: 40px;
+  min-width: 40px;
+  height: 40px;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  color: #667085;
+  cursor: pointer;
+}
+
+.desktopCollapse {
+  display: inline-flex;
+}
+
+.mobileMenuToggle {
+  display: none;
+}
+
+.desktopCollapse svg,
+.mobileMenuToggle svg {
+  width: 21px;
+  height: 21px;
+  fill: currentColor;
+}
+
+.headerAction:hover:not(:disabled),
+.desktopCollapse:hover,
+.mobileMenuToggle:hover {
+  color: @minipay-primary !important;
+  background: #f0f6ff !important;
+}
+
+.userButton {
+  min-height: 42px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: 2px;
+  cursor: pointer;
+}
+
+.avatar {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  flex: 0 0 auto;
+  place-items: center;
+  border-radius: 10px;
+  color: #fff;
+  background: @minipay-primary;
+}
+
+.displayName {
+  display: block;
+  color: #344054;
+}
+
+.userSummary {
+  min-width: 190px;
+  padding: 4px 2px;
+}
+
+.userSummary strong,
+.userSummary span {
+  display: block;
+}
+
+.userSummary span {
+  margin-top: 3px;
+  color: #667085;
+  font-size: 12px;
+}
+
+.breadcrumbBar {
+  min-height: 46px;
+  display: flex;
+  align-items: center;
+  padding: 0 28px;
+  background: rgba(255, 255, 255, 0.78);
+  border-bottom: 1px solid @minipay-shell-border;
+}
+
+.breadcrumb {
+  font-size: 13px;
+}
+
+.breadcrumb :global(.ant-breadcrumb-link),
+.breadcrumb :global(.ant-breadcrumb-separator) {
+  color: #667085;
+}
+
+.breadcrumb :global(li:last-child .ant-breadcrumb-link) {
+  color: #344054;
+}
+
+.content {
+  min-height: calc(100vh - 110px);
+  padding: 26px 28px 34px;
+  outline: none;
+}
+
+.content :global(.ant-card) {
+  border-color: @minipay-shell-border;
+  border-radius: 14px;
+  box-shadow: @minipay-card-shadow;
+}
+
+.content :global(.ant-card-head) { border-color: #edf1f6; }
+.content :global(.ant-table-wrapper) { overflow: hidden; border-radius: 10px; }
+.content :global(.ant-table-thead > tr > th) { color: #475467; background: #f8fafc; }
+.content :global(.ant-btn) { border-radius: 8px; }
+.content :global(.ant-input),
+.content :global(.ant-select-selector) { border-radius: 8px !important; }
+
+.mobileDrawer {
+  display: none;
+}
+
+.mobileDrawer :global(.ant-drawer-content-wrapper) {
+  max-width: calc(100vw - 48px);
+}
+
+.mobileDrawer :global(.ant-drawer-body) {
+  display: flex;
+  flex-direction: column;
+  padding: 0;
+  background: #fff;
+}
+
+.mobileDrawer :global(.ant-drawer-header) {
+  border-color: #eaecf0;
+  color: #344054;
+  background: #fff;
+}
+
+.mobileDrawer :global(.ant-drawer-close),
+.mobileDrawer :global(.ant-drawer-title) {
+  color: #344054;
+}
+
+@media (max-width: 900px) {
+  .sidebar {
+    display: none;
+  }
+
+  .mobileDrawer {
+    display: block;
+  }
+
+  .workspace {
+    margin-left: 0;
+  }
+
+  .desktopCollapse {
+    display: none;
+  }
+
+  .mobileMenuToggle {
+    display: inline-flex;
+  }
+
+  .header {
+    padding: 0 12px 0 6px;
+  }
+
+  .breadcrumbBar {
+    padding-inline: 16px;
+  }
+
+  .content {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 480px) {
+  .breadcrumb :global(.ant-breadcrumb li:nth-child(2)),
+  .displayName {
+    display: none;
+  }
+
+  .content {
+    padding: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .shell *,
+  .mobileDrawer * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

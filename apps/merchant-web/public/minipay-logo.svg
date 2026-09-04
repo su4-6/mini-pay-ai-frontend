@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-labelledby="title">
+  <title id="title">MiniPay</title>
+  <rect x="24" y="24" width="464" height="464" rx="112" fill="#1677ff"/>
+  <path d="M128 350V170c0-22 27-32 42-15l86 105 86-105c15-17 42-7 42 15v180" fill="none" stroke="#fff" stroke-width="52" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

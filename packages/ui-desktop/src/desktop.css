@@ -1,0 +1,88 @@
+:root {
+  --minipay-shell-width: 232px;
+  --minipay-shell-collapsed-width: 72px;
+  --minipay-shell-header-height: 68px;
+  --minipay-shell-bg: #f3f6fb;
+  --minipay-shell-border: #e4eaf2;
+  --minipay-primary: #155eef;
+  --minipay-primary-soft: #eaf2ff;
+  --minipay-text: #182230;
+  --minipay-muted: #667085;
+}
+
+html, body, #root { min-height: 100%; }
+body { margin: 0; color: var(--minipay-text); background: var(--minipay-shell-bg); }
+::selection { color: #fff; background: var(--minipay-primary); }
+
+.minipay-desktop-shell {
+  min-height: 100vh;
+  background:
+    radial-gradient(circle at 78% -10%, rgba(21, 94, 239, .08), transparent 28rem),
+    linear-gradient(180deg, #f8faff 0, var(--minipay-shell-bg) 260px);
+}
+
+.minipay-desktop-sidebar {
+  background: linear-gradient(180deg, rgba(255,255,255,.99), rgba(249,251,255,.97)) !important;
+}
+
+.minipay-desktop-sidebar::before {
+  position: absolute;
+  inset: 0 0 auto;
+  z-index: 2;
+  height: 3px;
+  content: '';
+  background: linear-gradient(90deg, #155eef, #66a3ff 58%, #8b5cf6);
+}
+
+.minipay-desktop-header {
+  box-shadow: 0 1px 0 rgba(16,24,40,.02), 0 8px 28px rgba(30,64,175,.035);
+}
+
+.minipay-desktop-content {
+  width: min(100%, 1680px);
+  box-sizing: border-box;
+  margin-inline: auto;
+}
+
+.minipay-desktop-content .ant-card {
+  overflow: hidden;
+  border-color: var(--minipay-shell-border);
+  box-shadow: 0 1px 2px rgba(16,24,40,.03), 0 10px 28px rgba(30,64,175,.055);
+  transition: border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+}
+
+.minipay-desktop-content .ant-card:hover {
+  border-color: #d7e2f2;
+  box-shadow: 0 2px 4px rgba(16,24,40,.04), 0 18px 42px rgba(30,64,175,.085);
+}
+
+.minipay-desktop-content .ant-table-wrapper {
+  border: 1px solid #edf1f6;
+  border-radius: 12px;
+}
+
+.minipay-desktop-content .ant-table-thead > tr > th {
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: .01em;
+}
+
+.minipay-desktop-content .ant-pagination { margin: 20px 4px 4px; }
+.minipay-desktop-content .ant-form-inline { row-gap: 12px; }
+.minipay-desktop-content .ant-tag { border-radius: 999px; padding-inline: 9px; }
+.minipay-desktop-content .ant-drawer-content,
+.minipay-desktop-content .ant-modal-content { border-radius: 16px; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .minipay-desktop-content > * { animation: minipay-page-enter .22s ease-out both; }
+  @keyframes minipay-page-enter {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}
+
+@media (max-width: 760px) {
+  :root { --minipay-shell-header-height: 62px; }
+  .minipay-desktop-content { width: 100%; }
+  .minipay-desktop-content .ant-card { border-radius: 13px; }
+}

@@ -1,0 +1,22 @@
+.card { border-radius: 8px; border: 1px solid #eaecf0; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04); }
+.header h3 { margin: 0 0 6px !important; color: #101828; }
+.header p { margin: 0; color: #667085; }
+.summaryCards { margin-bottom: 16px; }
+.summaryCards :global(.ant-card) { flex: 1 1 200px; cursor: pointer; transition: box-shadow 0.2s; }
+.summaryCards :global(.ant-card):hover { box-shadow: 0 2px 8px rgba(0, 0, 0, 0.12); }
+.summaryCards :global(.ant-card-body) { padding: 16px 20px; }
+.summaryPct { font-size: 13px; color: rgba(0, 0, 0, 0.45); font-weight: 400; }
+.filters { margin: 0 0 16px; padding: 16px; border-radius: 8px; background: #f8fafc; }
+.filters :global(.ant-input-affix-wrapper) { width: 210px; }
+.filters :global(.ant-select) { width: 190px; }
+.batchBar { margin-bottom: 12px; padding: 10px 16px; border-radius: 8px; background: #e6f4ff; }
+.table :global(.ant-table-cell) { white-space: normal; overflow-wrap: anywhere; }
+.merchantCell { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.merchantCell > * { min-width: 0; }
+.merchantLink { padding: 0; height: auto; line-height: inherit; text-align: left; white-space: normal; }
+.actions { row-gap: 0 !important; }
+
+@media (max-width: 700px) {
+  .filters :global(.ant-input-affix-wrapper),
+  .filters :global(.ant-select) { width: 100%; }
+}

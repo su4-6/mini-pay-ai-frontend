@@ -1,0 +1,154 @@
+@import '@minipay/design-tokens/less';
+
+.navigation {
+  min-height: 0;
+  flex: 1;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 14px 8px 16px;
+}
+
+.navigation :global(.ant-menu) {
+  border-inline-end: 0 !important;
+  background: transparent;
+}
+
+.navigation :global(.ant-menu-item),
+.navigation :global(.ant-menu-submenu-title) {
+  min-height: 44px;
+  height: 44px;
+  line-height: 44px;
+  margin-block: 3px;
+  margin-inline: 4px;
+  width: calc(100% - 8px);
+  border-radius: 10px;
+  color: #53627a;
+  transition: color 160ms ease, background 160ms ease, box-shadow 160ms ease;
+}
+
+.navigation :global(.ant-menu-submenu-title) {
+  font-weight: 600;
+}
+
+.navigation :global(.ant-menu-sub.ant-menu-inline) {
+  margin: 3px 4px 8px;
+  padding: 4px 0 5px;
+  border: 1px solid #edf3fb;
+  border-radius: 12px;
+  background: #f8faff;
+}
+
+.navigation :global(.ant-menu-sub.ant-menu-inline .ant-menu-item) {
+  width: calc(100% - 8px);
+  height: 40px;
+  min-height: 40px;
+  line-height: 40px;
+  margin-block: 2px;
+}
+
+.navigation :global(.ant-menu-inline-collapsed) {
+  width: 100%;
+}
+
+.navigation :global(.ant-menu-inline-collapsed > .ant-menu-item),
+.navigation :global(.ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title) {
+  width: calc(100% - 12px);
+  margin-inline: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding-inline: 0 !important;
+  border-radius: 10px;
+  text-align: center;
+}
+
+.navigation :global(.ant-menu-inline-collapsed > .ant-menu-item > .ant-menu-item-icon),
+.navigation :global(.ant-menu-inline-collapsed > .ant-menu-submenu > .ant-menu-submenu-title > .ant-menu-item-icon) {
+  margin-inline: 0 !important;
+}
+
+.navigation :global(.ant-menu-inline-collapsed .ant-menu-title-content) {
+  width: 0;
+  flex: 0 0 0;
+  margin-inline: 0;
+  overflow: hidden;
+}
+
+.railMark {
+  width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 9px;
+  color: #667085;
+  background: #f2f4f7;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 1;
+  transition: color 180ms ease, background 180ms ease;
+}
+
+.navigation :global(.ant-menu-inline-collapsed) .railMark {
+  color: #98a2b3;
+}
+
+.navigation :global(.ant-menu-inline-collapsed .ant-menu-item:hover) .railMark,
+.navigation :global(.ant-menu-inline-collapsed .ant-menu-submenu-title:hover) .railMark {
+  color: @minipay-primary;
+  background: #eaf2ff;
+}
+
+.navigation :global(.ant-menu-inline-collapsed .ant-menu-item-selected) .railMark {
+  color: @minipay-primary;
+  background: #dceaff;
+}
+
+.navigation :global(.ant-menu-item:focus-visible),
+.navigation :global(.ant-menu-submenu-title:focus-visible) {
+  outline: 2px solid #69b1ff;
+  outline-offset: -2px;
+}
+
+.navigation :global(.ant-menu-item-selected) {
+  color: @minipay-primary !important;
+  background: linear-gradient(90deg, #e7f1ff 0%, #f2f7ff 100%) !important;
+  box-shadow: inset 3px 0 @minipay-primary, 0 4px 12px rgba(22, 119, 255, 0.08);
+  font-weight: 600;
+}
+
+.navigation :global(.ant-menu-item-selected::after) {
+  display: none;
+}
+
+.navigation :global(.ant-menu-submenu-selected > .ant-menu-submenu-title) {
+  color: @minipay-primary;
+}
+
+.navigation :global(.ant-menu-item-disabled) {
+  color: #98a2b3 !important;
+  cursor: not-allowed;
+}
+
+.navigation :global(.ant-menu-item:not(.ant-menu-item-disabled):hover),
+.navigation :global(.ant-menu-submenu-title:hover) {
+  color: @minipay-primary !important;
+  background: #f1f6fd !important;
+}
+
+.plannedLabel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.plannedBadge {
+  min-width: 42px;
+  padding: 0 5px;
+  border-radius: 8px;
+  color: #98a2b3;
+  background: #f2f4f7;
+  font-size: 10px;
+  line-height: 17px;
+  text-align: center;
+}

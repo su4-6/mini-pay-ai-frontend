@@ -1,0 +1,30 @@
+{
+  "name": "@minipay/admin-web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "node ../../scripts/run-dev.mjs 8002",
+    "build": "max build",
+    "typecheck": "max setup && tsc -p tsconfig.json",
+    "lint": "pnpm --dir ../.. exec eslint apps/admin-web/src --ext .ts,.tsx",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@ant-design/icons": "6.3.2",
+    "@minipay/design-tokens": "workspace:*",
+    "@minipay/shared": "workspace:*",
+    "@minipay/ui-desktop": "workspace:*",
+    "@tanstack/react-query": "5.101.4",
+    "@umijs/max": "4.6.82",
+    "antd": "6.5.2",
+    "dayjs": "1.11.13",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@types/react": "18.3.23",
+    "@types/react-dom": "18.3.7",
+    "less": "4.3.0",
+    "vitest": "3.2.4"
+  }
+}

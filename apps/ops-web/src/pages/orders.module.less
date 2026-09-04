@@ -1,0 +1,16 @@
+.card { border-radius: 8px; border: 1px solid #eaecf0; box-shadow: 0 1px 3px rgba(16, 24, 40, 0.04); }
+.card :global(.ant-card-head-title h3) { margin: 0 0 4px; color: #101828; }
+.filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  padding: 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+.filters :global(.ant-select) { min-width: 140px; }
+.tableCard { margin-top: 4px; }
+.summaryGrid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin-bottom:16px; }
+@media(max-width:760px){.summaryGrid{grid-template-columns:1fr}}

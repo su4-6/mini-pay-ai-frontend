@@ -1,0 +1,16 @@
+# Copy these values into a private Gradle properties file or pass them with -P.
+MINIPAY_IDENTITY_BASE_URL=https://identity.example.com
+MINIPAY_PAYMENT_BASE_URL=https://payment.example.com
+MINIPAY_WALLET_BASE_URL=https://wallet.example.com
+MINIPAY_AGENT_BASE_URL=https://agent.example.com
+MINIPAY_COMMERCE_BASE_URL=https://commerce.example.com
+MINIPAY_FOOD_H5_ORIGIN=https://food.example.com
+MINIPAY_USER_AGREEMENT_URL=https://www.example.com/legal/user-agreement
+MINIPAY_PRIVACY_POLICY_URL=https://www.example.com/legal/privacy
+MINIPAY_AMAP_ANDROID_KEY=
+
+# Never commit the keystore or passwords.
+MINIPAY_RELEASE_STORE_FILE=/secure/path/minipay-release.jks
+MINIPAY_RELEASE_STORE_PASSWORD=
+MINIPAY_RELEASE_KEY_ALIAS=minipay
+MINIPAY_RELEASE_KEY_PASSWORD=

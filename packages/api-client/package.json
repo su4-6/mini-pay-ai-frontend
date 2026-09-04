@@ -1,0 +1,17 @@
+{
+  "name": "@minipay/api-client",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@minipay/api-contracts": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "3.2.4"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  }
+}

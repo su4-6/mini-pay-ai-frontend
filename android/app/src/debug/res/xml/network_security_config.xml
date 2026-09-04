@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<network-security-config>
+    <!-- Debug builds may target a USB-forwarded localhost, an emulator host, or a
+         developer machine on the local network. Release builds keep their own
+         restrictive transport policy. -->
+    <base-config cleartextTrafficPermitted="true" />
+</network-security-config>
