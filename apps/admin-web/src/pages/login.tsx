@@ -125,7 +125,7 @@ export default function AdminLoginPage() {
     <main className={styles.page}>
       <section className={styles.brand}>
         <div className={styles.logo}>
-          <img src={`${MINIPAY_PUBLIC_PATH}minipay-logo.svg`} alt="MiniPay" />
+          <img src={`${MINIPAY_PUBLIC_PATH}minipay-logo.jpg`} alt="MiniPay" />
           <div><strong>MiniPay AI</strong><span>智能支付开放平台</span></div>
         </div>
         <div className={styles.pitch}>

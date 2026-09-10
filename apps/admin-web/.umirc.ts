@@ -19,7 +19,7 @@ export default defineConfig({
   jsMinifierOptions: { charset: 'utf8' },
   cssMinifierOptions: { charset: 'utf8' },
   title: 'MiniPay 系统管理平台',
-  favicons: [`${deployBase}minipay-logo.svg`],
+  favicons: [`${deployBase}minipay-logo.jpg`],
   proxy: {
     '/identity': {
       target: 'http://localhost:8081',

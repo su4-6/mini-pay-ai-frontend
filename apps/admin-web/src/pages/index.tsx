@@ -109,12 +109,12 @@ export default function AdminPortal() {
   ];
   return <Layout className={`${styles.shell} minipay-desktop-shell`}>
     <Sider className={`${styles.sidebar} minipay-desktop-sidebar`} theme="light" width={232} collapsedWidth={72} collapsed={collapsed} trigger={null}>
-      <div className={styles.brand}><img src={`${MINIPAY_PUBLIC_PATH}minipay-logo.svg`} alt="MiniPay" />{!collapsed&&<div><strong>minipay</strong><small>系统管理平台</small></div>}</div>
+      <div className={styles.brand}><img src={`${MINIPAY_PUBLIC_PATH}minipay-logo.jpg`} alt="MiniPay" />{!collapsed&&<div><strong>minipay</strong><small>系统管理平台</small></div>}</div>
       <Menu className={styles.menu} selectedKeys={[location.pathname]} defaultOpenKeys={['business','system']} items={items} inlineCollapsed={collapsed} />
       {!collapsed&&<div className={styles.sidebarFooter}>系统安全与全局审计</div>}
     </Sider>
     <Drawer className={styles.mobileDrawer} placement="left" width={276} title="系统管理平台导航" open={mobileMenuOpen} onClose={()=>setMobileMenuOpen(false)}>
-      <div className={styles.mobileBrand}><img src={`${MINIPAY_PUBLIC_PATH}minipay-logo.svg`} alt="MiniPay" /><div><strong>minipay</strong><small>系统管理平台</small></div></div>
+      <div className={styles.mobileBrand}><img src={`${MINIPAY_PUBLIC_PATH}minipay-logo.jpg`} alt="MiniPay" /><div><strong>minipay</strong><small>系统管理平台</small></div></div>
       <Menu mode="inline" selectedKeys={[location.pathname]} defaultOpenKeys={['business','system']} items={items} onClick={()=>setMobileMenuOpen(false)} />
     </Drawer>
     <Layout className={styles.workspace} style={{marginLeft:collapsed?72:232}}>
