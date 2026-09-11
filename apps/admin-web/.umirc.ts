@@ -10,9 +10,9 @@ export default defineConfig({
   antd: {},
   define: {
     MINIPAY_PUBLIC_PATH: deployBase,
-    MERCHANT_WEB_PUBLIC_URL: process.env.MERCHANT_WEB_PUBLIC_URL || 'http://localhost:8001/',
-    OPS_WEB_PUBLIC_URL: process.env.OPS_WEB_PUBLIC_URL || 'http://localhost:8000/',
-    ADMIN_WEB_PUBLIC_URL: process.env.ADMIN_WEB_PUBLIC_URL || 'http://localhost:8002/'
+    ...(process.env.MERCHANT_WEB_PUBLIC_URL ? { MERCHANT_WEB_PUBLIC_URL: process.env.MERCHANT_WEB_PUBLIC_URL } : {}),
+    ...(process.env.OPS_WEB_PUBLIC_URL ? { OPS_WEB_PUBLIC_URL: process.env.OPS_WEB_PUBLIC_URL } : {}),
+    ...(process.env.ADMIN_WEB_PUBLIC_URL ? { ADMIN_WEB_PUBLIC_URL: process.env.ADMIN_WEB_PUBLIC_URL } : {})
   },
   esbuildMinifyIIFE: true,
   codeSplitting: { jsStrategy: 'granularChunks' },
