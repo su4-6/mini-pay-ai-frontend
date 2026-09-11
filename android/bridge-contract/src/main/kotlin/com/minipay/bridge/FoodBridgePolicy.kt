@@ -43,8 +43,16 @@ object FoodBridgePolicy {
         }.getOrDefault(false)
     }
 
+    // RFC 6761 规定 *.localhost 一律解析到回环地址，因此 "food.minipay.localhost"
+    // 这类开发用域名同样是回环来源。漏判它会导致 App 直接丢弃 H5 的全部桥消息
+    // （表现为 H5 永远停在"游客"、拿不到授权码）。
     private fun isLoopback(host: String?): Boolean =
-        host.equals("localhost", ignoreCase = true) || host == "127.0.0.1" || host == "::1"
+        host != null && (
+            host.equals("localhost", ignoreCase = true) ||
+                host == "127.0.0.1" ||
+                host == "::1" ||
+                host.endsWith(".localhost", ignoreCase = true)
+            )
 
     fun isSupportedMessage(type: String): Boolean =
         type in FoodBridgeMessageType.entries.map(FoodBridgeMessageType::name)

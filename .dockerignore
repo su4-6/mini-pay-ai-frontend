@@ -7,6 +7,12 @@ node_modules
 **/.umi
 **/.umi-production
 **/dist
+!apps/merchant-web/dist
+!apps/merchant-web/dist/**
+!apps/ops-web/dist
+!apps/ops-web/dist/**
+!apps/admin-web/dist
+!apps/admin-web/dist/**
 **/coverage
 android
 output

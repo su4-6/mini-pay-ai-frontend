@@ -120,6 +120,19 @@ android {
             val agentBaseUrl = providers.gradleProperty("MINIPAY_AGENT_BASE_URL").orElse("").get()
             val commerceBaseUrl = providers.gradleProperty("MINIPAY_COMMERCE_BASE_URL").orElse("").get()
             val foodH5Origin = providers.gradleProperty("MINIPAY_FOOD_H5_ORIGIN").orElse("").get()
+            // 外卖 H5 必须配置为受信任的 origin，否则：
+            //   - WebView 会加载到空地址；
+            //   - FoodBridgePolicy.isTrustedFoodOrigin 对空 origin 直接返回 false，
+            //     桥消息被全部丢弃，H5 会永远停在"游客"且没有任何报错。
+            // 因此 release 构建必须显式提供（与签名参数同样强制），不允许静默出坏包。
+            // 注意：release { } 配置块在 configuration 阶段也会被评估，
+            // 必须用 buildingRelease 守卫，否则 debug 构建会被误拦。
+            if (buildingRelease && (foodH5Origin.isBlank() || !foodH5Origin.startsWith("https://"))) {
+                throw GradleException(
+                    "MINIPAY_FOOD_H5_ORIGIN is required for release builds and must be an https origin " +
+                        "(for example https://food.example.com). Current value: '$foodH5Origin'"
+                )
+            }
             buildConfigField("String", "IDENTITY_BASE_URL", "\"$identityBaseUrl\"")
             buildConfigField("String", "USER_AGREEMENT_URL", "\"$userAgreementUrl\"")
             buildConfigField("String", "PRIVACY_POLICY_URL", "\"$privacyPolicyUrl\"")

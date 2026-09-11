@@ -6,7 +6,6 @@ MiniPay AI（移动端智能体名：**米灵**）的前端 Monorepo。Android �
 
 项目开发、测试与安全要求见 [项目规范](./docs/PROJECT_STANDARDS.md)。
 
-- `apps/consumer-h5`：消费者 H5，React + Umi + Ant Design Mobile。
 - `apps/ops-web`：支付运营后台，React + Umi + Ant Design。
 - `apps/merchant-web`：支付商户后台，React + Umi + Ant Design。
 - `android`：Kotlin + Jetpack Compose 消费者端；包含米灵原生会话与结构化业务卡片，同时保留传统钱包、账单、扫码和收款页面。
@@ -16,7 +15,7 @@ MiniPay AI（移动端智能体名：**米灵**）的前端 Monorepo。Android �
 ```powershell
 pnpm install
 pnpm verify
-pnpm --filter @minipay/consumer-h5 dev
+pnpm --filter @minipay/merchant-web dev
 ```
 
 Android 需使用 Android Studio 或 Gradle 运行。Food WebView 默认不加载远程页面；启用前必须配置受信任的 HTTPS 域名并完成后端授权契约。

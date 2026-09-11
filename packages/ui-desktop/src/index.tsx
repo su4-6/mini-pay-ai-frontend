@@ -46,6 +46,23 @@ const portalLabels: Record<PortalKey, string> = {
 function portalSwitchUrl(portalUrl: string, target: PortalKey) {
   const origin = typeof window === 'undefined' ? 'http://localhost' : window.location.origin;
   const base = new URL(portalUrl, origin);
+  if (typeof window !== 'undefined') {
+    const current = new URL(window.location.href);
+    const labels: Record<PortalKey, string> = { merchant: 'merchant', ops: 'ops', admin: 'admin' };
+    const firstDot = current.hostname.indexOf('.');
+    const currentPortal = firstDot > 0 ? current.hostname.slice(0, firstDot) : '';
+    if (firstDot > 0 && Object.values(labels).includes(currentPortal)) {
+      // Keep the protocol, domain suffix and forwarded local port used by the
+      // page that is actually open. This makes one image work both behind the
+      // local :18080 port-forward and on the HTTPS production hostnames.
+      base.protocol = current.protocol;
+      base.hostname = `${labels[target]}${current.hostname.slice(firstDot)}`;
+      base.port = current.port;
+      base.pathname = '/';
+      base.search = '';
+      base.hash = '';
+    }
+  }
   if (!base.pathname.endsWith('/')) base.pathname += '/';
   return new URL(`switch-login?target=${target}`, base).toString();
 }

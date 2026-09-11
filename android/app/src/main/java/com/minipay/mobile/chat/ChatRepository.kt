@@ -29,6 +29,19 @@ class ChatRepository @Inject constructor(
 ) {
     private val mediaPlaybackCache = ConcurrentHashMap<String, CachedMediaPlayback>()
 
+    // 服务端返回或历史遗留的枚举值可能超出客户端已知集合（新增类型、大小写差异等）。
+    // 直接调用 Enum.valueOf 会抛 IllegalArgumentException，并让 Flow 的收集线程崩溃
+    // （表现为"点击会话 -> App 屡次停止运行"）。这里统一做大小写无关的安全转换 + 兜底默认值。
+
+    private fun safeSenderType(raw: String?): SenderType =
+        SenderType.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) } ?: SenderType.Other
+
+    private fun safeMessageType(raw: String?): MessageType =
+        MessageType.entries.firstOrNull { it.name.equals(raw, ignoreCase = true) } ?: MessageType.Text
+
+    private fun safeTransferDirection(raw: String?): TransferDirection? =
+        raw?.let { value -> TransferDirection.entries.firstOrNull { it.name.equals(value, ignoreCase = true) } }
+
     fun observeConversations(): Flow<List<Conversation>> =
         authRepository.currentUserId.flatMapLatest { ownerId ->
             if (ownerId == null) flowOf(emptyList()) else chatDao.observeConversations(ownerId)
@@ -82,16 +95,16 @@ class ChatRepository @Inject constructor(
                 ChatMessage(
                     id = entity.id,
                     conversationId = entity.conversationId,
-                    senderType = SenderType.valueOf(entity.senderType),
+                    senderType = safeSenderType(entity.senderType),
                     senderId = entity.senderId,
                     senderName = entity.senderName,
                     senderAvatarUrl = entity.senderAvatarUrl,
                     senderAvatarUrlExpiresAt = entity.senderAvatarUrlExpiresAt,
                     content = entity.content,
-                    messageType = MessageType.valueOf(entity.messageType),
+                    messageType = safeMessageType(entity.messageType),
                     transferAmount = entity.transferAmount,
                     transferStatus = entity.transferStatus,
-                    transferDirection = entity.transferDirection?.let { TransferDirection.valueOf(it) },
+                    transferDirection = safeTransferDirection(entity.transferDirection),
                     transferId = entity.transferId,
                     transferTargetUserId = entity.transferTargetUserId,
                     voiceMediaId = entity.voiceMediaId,
@@ -306,16 +319,16 @@ class ChatRepository @Inject constructor(
             ChatMessage(
                 id = response.id,
                 conversationId = response.conversationId,
-                senderType = SenderType.valueOf(response.senderType),
+                senderType = safeSenderType(response.senderType),
                 senderId = response.senderId,
                 senderName = response.senderNickname ?: response.senderOriginalNickname,
                 senderAvatarUrl = response.senderAvatarUrl,
                 senderAvatarUrlExpiresAt = response.senderAvatarUrlExpiresAt,
                 content = response.content,
-                messageType = MessageType.valueOf(response.messageType),
+                messageType = safeMessageType(response.messageType),
                 transferAmount = response.transferAmount,
                 transferStatus = response.transferStatus,
-                transferDirection = response.transferDirection?.let { TransferDirection.valueOf(it) },
+                transferDirection = safeTransferDirection(response.transferDirection),
                 transferId = response.transferId,
                 transferTargetUserId = response.transferTargetUserId,
                 voiceMediaId = response.voiceMediaId,

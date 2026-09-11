@@ -4,9 +4,9 @@
   "private": true,
   "packageManager": "pnpm@10.34.5",
   "scripts": {
-    "build": "pnpm --filter @minipay/consumer-h5 --filter @minipay/ops-web --filter @minipay/merchant-web --filter @minipay/admin-web build",
-    "typecheck": "pnpm --filter @minipay/consumer-h5 --filter @minipay/ops-web --filter @minipay/merchant-web --filter @minipay/admin-web typecheck",
-    "lint": "pnpm exec eslint apps/consumer-h5/src apps/ops-web/src apps/merchant-web/src apps/admin-web/src --ext .ts,.tsx",
+    "build": "pnpm --filter @minipay/ops-web --filter @minipay/merchant-web --filter @minipay/admin-web build",
+    "typecheck": "pnpm --filter @minipay/ops-web --filter @minipay/merchant-web --filter @minipay/admin-web typecheck",
+    "lint": "pnpm exec eslint apps/ops-web/src apps/merchant-web/src apps/admin-web/src --ext .ts,.tsx",
     "test": "pnpm --filter @minipay/api-client --filter @minipay/ops-web test",
     "e2e": "playwright test",
     "verify": "pnpm lint && pnpm typecheck && pnpm test && pnpm build"

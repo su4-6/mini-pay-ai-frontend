@@ -6,14 +6,13 @@
 
 - 当前 P0 是注册/登录、账户、钱包、转账、付款确认、账单、AI Talk 与运营/商户支付后台；前端不得擅自把原型占位当作已完成业务。
 - 外卖商家、菜单、购物车、履约、外卖订单与外卖授权的实际集成均为 P1。不得在 MiniPay 中重建这些业务或复制第三方品牌资产。
-- Consumer H5 和 Android App 共用身份、账户、转账单与账单的后端事实来源；同一业务状态不得在端侧重复定义。
-- Android 只允许以受控 WebView 承载未来的 UniApp 外卖 H5。Consumer H5 不嵌入 Android，付款页面始终由 Android 原生实现。
+- Android App 使用身份、账户、转账单与账单的后端事实来源；同一业务状态不得在端侧重复定义。
+- Android 只允许以受控 WebView 承载未来的 UniApp 外卖 H5，付款页面始终由 Android 原生实现。
 
 ## 2. 目录、依赖与架构
 
 ```text
 apps/                 可独立构建的产品应用
-  consumer-h5/        C 端 React + Umi + Ant Design Mobile
   ops-web/            运营端 React + Umi + Ant Design
   merchant-web/       商户端 React + Umi + Ant Design
 packages/             不含业务页面的共享能力
@@ -37,7 +36,7 @@ docs/                 契约、规范与架构决策文档
 - 页面组件负责组合与交互；可复用视图放入 `packages/ui-*`；请求、错误映射和认证头统一在 `api-client` 与 Umi Request 配置中维护。
 - Zustand 仅保存客户端/短期交互状态，例如 UI 抽屉、草稿与会话视图；服务端数据、加载和失效由 TanStack Query 管理。
 - 所有写操作必须带 `X-Request-Id` 与后端要求的幂等键；成功后按精确 query key 失效，禁止无差别刷新全部缓存。
-- 组件使用语义化 HTML，控件具备可见焦点、明确名称和不少于 44px 的触控区域。Consumer H5 必须在 375px 与 768px 下无横向滚动。
+- Web 组件使用语义化 HTML，控件具备可见焦点、明确名称和不少于 44px 的触控区域。
 - 视觉实现以 `design-tokens` 为唯一颜色和间距来源；不得在业务页面散落新的品牌色、阴影或字号常量。
 
 ## 4. 支付、AI 与数据安全

@@ -9,6 +9,7 @@ output/playwright/
 .idea/
 .vscode/
 android/.gradle/
+android/gradle.production.properties
 android/.kotlin/
 android/build/
 android/app/build/
@@ -28,3 +29,8 @@ minipay-sandbox-*.apk
 /minipay-*.xml
 /window-after-back.xml
 /.claude/
+
+# 已废弃：瘦身版 yshop 已被正版 integrations/yshop 全量替换（见变更 #22）。
+# 不纳入版本管理：已无活配置引用，且其超长路径会让 Windows 上的
+# `git add` 以 "Filename too long" 中断，导致其它文件被静默漏提交。
+integrations/yshop-lite/

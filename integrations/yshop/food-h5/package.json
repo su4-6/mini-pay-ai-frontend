@@ -1,0 +1,20 @@
+{
+  "name": "yshop-miniapp",
+  "version": "1.2.0",
+  "description": "",
+  "main": "main.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vant/area-data": "^1.5.0",
+    "flyio": "^0.6.14",
+    "jweixin-module": "^1.6.0",
+    "less": "^4.8.1",
+    "pinia": "^2.1.6",
+    "sass": "^1.102.0",
+    "weixin-js-sdk": "^1.6.3"
+  }
+}

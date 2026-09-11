@@ -1,0 +1,18 @@
+# pnpm 11 用 allowBuilds 声明“哪些依赖允许执行安装期脚本”。
+# 这里必须写真实的布尔值：若保留 approve-builds 的交互占位符
+# （"set this to true or false"），pnpm 会判定为未批准并让
+# `pnpm install` 以 ERR_PNPM_IGNORED_BUILDS 退出 1，
+# 而 `pnpm <script>` 运行前的依赖校验会调用 install，
+# 于是 `pnpm build:prod` 也会整体失败。
+# 统一置为 false：不执行任何安装期脚本（供应链更安全，且不依赖外网下载
+# 预编译二进制）；已验证该配置下 vite 构建可正常产出可用产物。
+allowBuilds:
+  '@parcel/watcher': false
+  '@swc/core': false
+  core-js: false
+  core-js-pure: false
+  es5-ext: false
+  esbuild: false
+  vue-demi: false
+overrides:
+  '@videojs/vhs-utils': 3.0.5
