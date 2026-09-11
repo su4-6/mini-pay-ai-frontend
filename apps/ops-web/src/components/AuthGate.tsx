@@ -19,6 +19,29 @@ interface AuthGateProps {
 
 export type SessionPhase = 'loading' | 'redirecting' | 'error' | 'authenticated';
 
+/**
+ * 系统管理员被挡在运营端之外、需要跳去管理端时使用的地址。
+ *
+ * 不能直接用构建期注入的 ADMIN_WEB_PUBLIC_URL：`.umirc.ts` 在未传环境变量时
+ * 会把它烤成 http://localhost:8002/，于是部署后系统管理员会被跳到构建机的
+ * localhost（ERR_CONNECTION_REFUSED）。
+ *
+ * 因此：只有当注入值是一个不含 localhost 的绝对地址时才采用它；
+ * 否则按当前域名推导（ops.example.com -> admin.example.com，
+ * ops.minipay.localhost:18080 -> admin.minipay.localhost:18080），本地与线上自适应。
+ */
+export function resolveAdminPortalUrl(): string {
+  const injected =
+    typeof ADMIN_WEB_PUBLIC_URL === 'string' ? ADMIN_WEB_PUBLIC_URL : '';
+  if (/^https?:\/\//.test(injected) && !injected.includes('localhost')) {
+    return injected;
+  }
+  const { protocol, host } = window.location;
+  // 只替换最前面的一段主机名，保留其余域名与端口。
+  const adminHost = host.includes('.') ? host.replace(/^[^.]*/, 'admin') : host;
+  return `${protocol}//${adminHost}/`;
+}
+
 export function resolveSessionPhase(
   isPending: boolean,
   isError: boolean,
@@ -76,7 +99,7 @@ export function AuthGate({ routeKey, children }: AuthGateProps) {
 
   useEffect(() => {
     if (shouldUseAdminPortal) {
-      window.location.replace(ADMIN_WEB_PUBLIC_URL);
+      window.location.replace(resolveAdminPortalUrl());
     }
   }, [shouldUseAdminPortal]);
 

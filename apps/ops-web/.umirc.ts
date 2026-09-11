@@ -20,9 +20,20 @@ export default defineConfig({
   antd: {},
   define: {
     MINIPAY_PUBLIC_PATH: deployBase,
-    MERCHANT_WEB_PUBLIC_URL: process.env.MERCHANT_WEB_PUBLIC_URL || 'http://localhost:8001/',
-    OPS_WEB_PUBLIC_URL: process.env.OPS_WEB_PUBLIC_URL || 'http://localhost:8000/',
-    ADMIN_WEB_PUBLIC_URL: process.env.ADMIN_WEB_PUBLIC_URL || 'http://localhost:8002/',
+    // 三个门户地址只在显式传入时才注入。
+    // 之前写成 `process.env.X || 'http://localhost:800N/'`，构建流水线并不传这三个变量，
+    // 于是 localhost 被烤进产物：部署后跳转会指向构建机的 localhost（ERR_CONNECTION_REFUSED）。
+    // 不注入时，源码里的 `typeof X === 'string' ? X : '<相对路径>'` 回退会生效，
+    // AuthGate 则按当前域名推导，因此产物不再依赖构建机环境。
+    ...(process.env.MERCHANT_WEB_PUBLIC_URL
+      ? { MERCHANT_WEB_PUBLIC_URL: process.env.MERCHANT_WEB_PUBLIC_URL }
+      : {}),
+    ...(process.env.OPS_WEB_PUBLIC_URL
+      ? { OPS_WEB_PUBLIC_URL: process.env.OPS_WEB_PUBLIC_URL }
+      : {}),
+    ...(process.env.ADMIN_WEB_PUBLIC_URL
+      ? { ADMIN_WEB_PUBLIC_URL: process.env.ADMIN_WEB_PUBLIC_URL }
+      : {}),
     AMAP_WEB_KEY: process.env.AMAP_KEY || '',
     AMAP_SECURITY_CODE: process.env.AMAP_SECURITY_CODE || '',
     AMAP_SERVICE_HOST: process.env.AMAP_SERVICE_HOST || ''
