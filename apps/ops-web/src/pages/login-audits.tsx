@@ -10,11 +10,21 @@ import styles from './login-audits.module.less';
 
 const resultLabels: Record<string, { label: string; color: string }> = {
   SUCCESS: { label: '成功', color: 'green' },
-  REJECTED: { label: '失败', color: 'red' },
-  LOCKED: { label: '已锁定', color: 'orange' },
-  DISABLED: { label: '已禁用', color: 'default' },
-  ROLE_DENIED: { label: '角色拒绝', color: 'volcano' }
+  REJECTED: { label: '密码或验证码错误', color: 'red' },
+  LOCKED: { label: '账号已锁定', color: 'orange' },
+  DISABLED: { label: '账号已禁用', color: 'default' },
+  ROLE_DENIED: { label: '无该入口权限', color: 'volcano' },
+  // 后端结果码 → 中文（变更 #45）：SMS_FAILED / CAPTCHA_FAILED 原来直接显示英文
+  SMS_FAILED: { label: '短信验证码错误', color: 'red' },
+  CAPTCHA_FAILED: { label: '图形验证码错误', color: 'red' },
+  PASSWORD_FAILED: { label: '密码错误', color: 'red' },
+  AUTHENTICATION_CHALLENGE_REJECTED: { label: '认证校验未通过', color: 'red' },
+  IDENTITY_UNAVAILABLE: { label: '身份服务不可用', color: 'orange' },
+  RATE_LIMITED: { label: '请求过于频繁', color: 'orange' }
 };
+// 未知结果码统一显示为中文，避免界面出现英文内部码
+const resultOf = (value: string) =>
+  resultLabels[value] ?? { label: value === 'SUCCESS' ? '成功' : '登录失败', color: 'red' };
 
 const columns: TableColumnsType<LoginAuditItem> = [
   {
@@ -41,7 +51,7 @@ const columns: TableColumnsType<LoginAuditItem> = [
     dataIndex: 'result',
     width: 120,
     render: (value: string) => {
-      const result = resultLabels[value] ?? { label: value, color: 'default' };
+      const result = resultOf(value);
       return <Tag color={result.color}>{result.label}</Tag>;
     }
   },

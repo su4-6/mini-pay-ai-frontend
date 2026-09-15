@@ -11,9 +11,13 @@ import type { OpsPaymentOrder, OpsPaymentOrderDetail } from '@minipay/api-contra
 import styles from './orders.module.less';
 
 const statusLabels: Record<string, { label: string; color: string }> = {
+  PENDING: { label: '待支付', color: 'warning' },
   PROCESSING: { label: '处理中', color: 'processing' },
   SUCCEEDED: { label: '成功', color: 'success' },
-  FAILED: { label: '失败', color: 'error' }
+  FAILED: { label: '失败', color: 'error' },
+  CLOSED: { label: '已关闭', color: 'default' },
+  CANCELLED: { label: '已取消', color: 'default' },
+  REFUNDED: { label: '已退款', color: 'purple' }
 };
 const channelLabels: Record<string, string> = {
   WALLET: 'MiniPay 余额',

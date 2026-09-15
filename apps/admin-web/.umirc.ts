@@ -15,8 +15,8 @@ export default defineConfig({
     ...(process.env.ADMIN_WEB_PUBLIC_URL ? { ADMIN_WEB_PUBLIC_URL: process.env.ADMIN_WEB_PUBLIC_URL } : {})
   },
   esbuildMinifyIIFE: true,
+  jsMinifier: 'terser',
   codeSplitting: { jsStrategy: 'granularChunks' },
-  jsMinifierOptions: { charset: 'utf8' },
   cssMinifierOptions: { charset: 'utf8' },
   title: 'MiniPay 系统管理平台',
   favicons: [`${deployBase}minipay-logo.jpg`],

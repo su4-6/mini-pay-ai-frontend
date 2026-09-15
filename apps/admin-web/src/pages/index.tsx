@@ -7,7 +7,8 @@ import {
 } from 'antd';
 import dayjs from 'dayjs';
 import {
-  DownloadOutlined, EyeOutlined, MenuFoldOutlined, MenuOutlined, MenuUnfoldOutlined
+  DownloadOutlined, EyeOutlined, MenuFoldOutlined, MenuOutlined, MenuUnfoldOutlined,
+  SafetyCertificateOutlined
 } from '@ant-design/icons';
 import {
   adminApi, type Account, type Audit, type LedgerTransaction, type Merchant,
@@ -25,6 +26,19 @@ const time = (v?: unknown) => v ? dayjs(String(v)).format('YYYY-MM-DD HH:mm:ss')
 const roleName: Record<string, string> = {
   system_super_admin: '超级管理员', system_account_admin: '账号管理员',
   system_auditor: '只读审计员', platform_admin: '运营账号', merchant_owner: '商户所有人'
+};
+// 管理端只对系统管理员开放：identity 的 requireRead() 只认这三个角色，
+// 运营账号（platform_admin）访问 /api/v1/admin/** 一律 403（变更 #43）。
+const SYSTEM_ROLES = ['system_super_admin', 'system_account_admin', 'system_auditor'];
+// 角色标签配色：让"当前角色"一眼可辨，且不出现内部 role_code
+const ROLE_COLORS: Record<string, string> = {
+  system_super_admin: 'blue', system_account_admin: 'geekblue', system_auditor: 'cyan',
+  platform_admin: 'orange', merchant_owner: 'green'
+};
+const opsPortalUrl = () => {
+  if (typeof OPS_WEB_PUBLIC_URL === 'string' && OPS_WEB_PUBLIC_URL) return OPS_WEB_PUBLIC_URL;
+  const host = window.location.hostname;
+  return host.startsWith('admin.') ? `https://ops.${host.slice('admin.'.length)}/` : '/ops/';
 };
 const valueName: Record<string, string> = {
   ACTIVE: '启用', DISABLED: '停用', PENDING: '待处理', FROZEN: '冻结', CLOSED: '已关闭',
@@ -91,6 +105,55 @@ export default function AdminPortal() {
   useEffect(() => { if (session.data && !session.data.authenticated) window.location.assign('/login'); }, [session.data]);
   if (session.isLoading || !session.data?.authenticated) return <div className={styles.center}><Spin size="large" /></div>;
   const roles = session.data.admin?.roles ?? [];
+  // 没有系统管理员角色时提前拦下：否则每个页面都会把后端的 403 显示成
+  // 「加载失败」，看起来像"管理端没数据"，实际是账号不对（变更 #44/#45）。
+  // 文案全部用中文角色名，不出现内部 role_code。
+  if (!roles.some((role) => SYSTEM_ROLES.includes(role))) {
+    return <div className={styles.deniedPage}>
+      <div className={styles.deniedBrand}>
+        <img src={`${MINIPAY_PUBLIC_PATH}minipay-logo.jpg`} alt="MiniPay" />
+        <div><strong>MiniPay 系统管理平台</strong><small>MiniPay AI 安全认证中心</small></div>
+      </div>
+      <Card className={styles.deniedCard}>
+        <div className={styles.deniedIcon}><SafetyCertificateOutlined /></div>
+        <h2 className={styles.deniedTitle}>当前账号没有管理端权限</h2>
+        <p className={styles.deniedLead}>
+          账号登录成功，但它属于<strong>运营账号</strong>。MiniPay 的「运营平台」与「系统管理平台」
+          是两个互相独立的入口，权限不互通，因此这里不展示任何管理端数据。
+        </p>
+        <div className={styles.deniedFacts}>
+          <div className={styles.deniedFactsRow}>
+            <b>当前账号</b>
+            <span>{session.data.admin?.displayName ?? '未知账号'}</span>
+          </div>
+          <div className={styles.deniedFactsRow}>
+            <b>当前角色</b>
+            <span>
+              {roles.length
+                ? roles.map((role) => <Tag key={role} color="orange">{roleName[role] ?? '未识别角色'}</Tag>)
+                : <Tag>未分配角色</Tag>}
+            </span>
+          </div>
+        </div>
+        <div className={styles.deniedRoles}>
+          <div>
+            可以登录本平台的角色：
+            <Tag color="blue">超级管理员</Tag>
+            <Tag color="geekblue">账号管理员</Tag>
+            <Tag>只读审计员</Tag>
+          </div>
+          <div>要管理商户、订单与资金，请从运营平台进入。</div>
+        </div>
+        <div className={styles.deniedActions}>
+          <Button type="primary" size="large" onClick={() => void submitAdminLogout()}>退出并切换账号</Button>
+          <Button size="large" onClick={() => window.location.assign(opsPortalUrl())}>前往运营平台</Button>
+        </div>
+        <div className={styles.deniedFooter}>
+          登录与敏感操作均会记录审计。如需开通管理端权限，请联系超级管理员。
+        </div>
+      </Card>
+    </div>;
+  }
   const routeItem=(key:string,label:string)=>({key,label:<Link to={key}>{label}</Link>,icon:collapsed?<span className={styles.railMark} aria-hidden="true">{label.slice(0,1)}</span>:undefined});
   const items = [
     routeItem('/','系统概览'),
@@ -119,7 +182,7 @@ export default function AdminPortal() {
     </Drawer>
     <Layout className={styles.workspace} style={{marginLeft:collapsed?72:232}}>
       <Header className={`${styles.header} minipay-desktop-header`}><Space><Button className={styles.mobileMenuButton} type="text" aria-label="打开管理端导航" onClick={()=>setMobileMenuOpen(true)} icon={<MenuOutlined />} /><Button className={styles.desktopMenuButton} type="text" aria-label={collapsed?'展开侧栏':'收起侧栏'} onClick={toggleCollapsed} icon={collapsed?<MenuUnfoldOutlined />:<MenuFoldOutlined />} /><span className={styles.headerLabel}>MiniPay 系统安全中心</span></Space><Space>
-        {roles.map((r) => <Tag key={r}>{roleName[r] ?? r}</Tag>)}
+        {roles.map((r) => <Tag key={r} color={ROLE_COLORS[r] ?? 'default'}>{roleName[r] ?? '未识别角色'}</Tag>)}
         <span className={styles.avatar}>{session.data.admin?.displayName?.slice(0, 1) ?? '管'}</span>
         <strong className={styles.displayName}>{session.data.admin?.displayName}</strong><Button type="link" onClick={()=>void submitAdminLogout()}>退出</Button>
       </Space></Header>
@@ -144,7 +207,7 @@ function Dashboard({ roles }: { roles: Role[] }) {
   const logins = useQuery({ queryKey: ['dashboard','logins'], queryFn: () => adminApi.loginAudits({ page: 0, size: 5 }) });
   return <><h1>系统概览</h1>
     <Alert className={styles.roleBanner} showIcon type={health.data?.status === 'DEGRADED' ? 'warning' : roles.includes('system_auditor') ? 'info' : 'success'}
-      message={health.data?.status === 'DEGRADED' ? '检测到服务异常，请前往“登录安全”查看' : `当前权限：${roles.map((r) => roleName[r] ?? r).join('、')}`}
+      message={health.data?.status === 'DEGRADED' ? '检测到服务异常，请前往“登录安全”查看' : `当前权限：${roles.map((r) => roleName[r] ?? '未识别角色').join('、')}`}
       description={roles.includes('system_super_admin') ? '可管理系统管理员、账号、业务数据与全局审计。' : roles.includes('system_account_admin') ? '可执行账号解锁、停用、会话强退与登录方式重置。' : '当前为只读审计权限，可查询业务数据和安全记录，不可执行变更。'} />
     <div className={styles.grid}>{[
       ['消费者',summary.data?.consumers],['商户所有人',summary.data?.merchantOwners],['运营账号',summary.data?.operators],

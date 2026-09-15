@@ -32,6 +32,17 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   CANCELLED: { label: '已取消', color: 'default' }
 };
 const money = (cent = 0) => `¥ ${(cent / 100).toFixed(2)}`;
+// 渠道码 → 中文（变更 #45：原来直接把 BANK_CARD / MINIPAY_SANDBOX 显示在界面上）
+const channelLabels: Record<string, string> = {
+  BANK_CARD: '银行卡',
+  MINIPAY_SANDBOX: 'MiniPay 沙箱',
+  ALIPAY: '支付宝沙箱',
+  WECHAT: '微信沙箱',
+  WECHAT_PAY: '微信沙箱',
+  WALLET: 'MiniPay 余额',
+  WALLET_BALANCE: 'MiniPay 余额'
+};
+const channelLabel = (value?: string) => (value ? channelLabels[value] ?? value : '—');
 const orderNo = (row: Row) => 'rechargeNo' in row ? row.rechargeNo : row.withdrawalNo;
 
 export function ConsumerFundsOrders({ kind, routeKey, list, get }: Props) {
@@ -52,7 +63,7 @@ export function ConsumerFundsOrders({ kind, routeKey, list, get }: Props) {
     { title: '金额', dataIndex: 'amountCent', width: 120, render: money },
     { title: '银行', dataIndex: 'bankName', width: 140, render: (v?: string) => v || '—' },
     { title: '银行卡', dataIndex: 'bankCardMasked', width: 170, render: (v?: string) => v || '—' },
-    ...(recharge ? [{ title: '渠道', dataIndex: 'channel', width: 120 }] : []),
+    ...(recharge ? [{ title: '渠道', dataIndex: 'channel', width: 120, render: (v?: string) => channelLabel(v) }] : []),
     { title: '状态', dataIndex: 'status', width: 105, render: (v: string) => { const item = statusLabels[v] ?? { label: v, color: 'default' }; return <Tag color={item.color}>{item.label}</Tag>; } },
     { title: '创建时间', dataIndex: 'createdAt', width: 170, render: (v: string) => dayjs(v).format('YYYY-MM-DD HH:mm') },
     { title: '操作', fixed: 'right', width: 80, render: (_, row) => <Button type="link" onClick={async () => setDetail(await get(orderNo(row)))}>详情</Button> }
@@ -74,7 +85,7 @@ export function ConsumerFundsOrders({ kind, routeKey, list, get }: Props) {
         { key: 'amount', label: '金额', children: money(detail.amountCent) },
         { key: 'bank', label: '银行', children: detail.bankName || '—' },
         { key: 'card', label: '银行卡', children: detail.bankCardMasked || '—' },
-        ...('channel' in detail ? [{ key: 'channel', label: '渠道', children: detail.channel }] : []),
+        ...('channel' in detail ? [{ key: 'channel', label: '渠道', children: channelLabel(detail.channel) }] : []),
         ...('bankRequestNo' in detail ? [{ key: 'bankRequestNo', label: '银行请求号', children: detail.bankRequestNo || '—' }] : []),
         { key: 'status', label: '状态', children: statusLabels[detail.status]?.label ?? detail.status },
         { key: 'failure', label: '失败原因', children: detail.failureCode || '—' },

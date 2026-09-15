@@ -13,8 +13,8 @@ export default defineConfig({
   mfsu: false,
   request: {},
   esbuildMinifyIIFE: true,
+  jsMinifier: 'terser',
   codeSplitting: { jsStrategy: 'granularChunks' },
-  jsMinifierOptions: { charset: 'utf8' },
   cssMinifierOptions: { charset: 'utf8' },
   antd: {},
   define: {

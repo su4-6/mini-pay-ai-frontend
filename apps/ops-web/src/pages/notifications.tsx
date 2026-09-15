@@ -24,6 +24,28 @@ const statusLabels: Record<string, { label: string; color: string }> = {
   SUCCEEDED: { label: '已送达', color: 'success' },
   FAILED: { label: '失败', color: 'error' }
 };
+// 响应摘要里的失败原因：后端存的是错误码，这里翻译成中文（变更 #45）
+const failureReasons: Record<string, string> = {
+  NO_CALLBACK_URL: '商户未配置回调地址',
+  CALLBACK_URL_BLOCKED: '回调地址被安全策略拦截',
+  CONNECTION_TIMEOUT: '连接回调地址超时',
+  CONNECTION_REFUSED: '回调地址拒绝连接',
+  TLS_HANDSHAKE_FAILED: '回调地址 TLS 握手失败',
+  SIGNATURE_INVALID: '回调响应验签失败',
+  NON_2XX_RESPONSE: '回调返回非 2xx 状态',
+  RETRY_EXHAUSTED: '重试次数已用尽',
+  IDEMPOTENT_REPLAY: '重复事件，已按幂等忽略'
+};
+const failureReason = (value?: string | null): string => {
+  if (!value) return '—';
+  const trimmed = value.trim();
+  if (failureReasons[trimmed]) return failureReasons[trimmed];
+  // 形如 HTTP_500 / HTTP_404 的码
+  const http = /^HTTP_(\d{3})$/i.exec(trimmed);
+  if (http) return `回调返回 HTTP ${http[1]}`;
+  // 纯 ASCII 错误码一律给出中文兜底，避免界面出现英文内部码
+  return /^[A-Z0-9_]+$/.test(trimmed) ? `通知失败（${trimmed}）` : trimmed;
+};
 
 export default function NotificationsPage() {
   const { message } = App.useApp();
@@ -80,7 +102,7 @@ export default function NotificationsPage() {
       width: 90,
       render: (v: number) => `${v} 次`
     },
-    { title: '响应摘要', dataIndex: 'responseSummary', ellipsis: true, render: (v?: string) => v || '—' },
+    { title: '响应摘要', dataIndex: 'responseSummary', ellipsis: true, render: (v?: string) => failureReason(v) },
     {
       title: '创建时间',
       dataIndex: 'createdAt',
@@ -163,7 +185,7 @@ export default function NotificationsPage() {
                 },
                 { key: 'attempts', label: '已尝试', children: `${detail.attempts} 次` },
                 { key: 'request', label: '请求摘要', children: detail.requestSummary ?? '—' },
-                { key: 'response', label: '响应摘要', children: detail.responseSummary ?? '—' },
+                { key: 'response', label: '响应摘要', children: failureReason(detail.responseSummary) },
                 {
                   key: 'created',
                   label: '创建时间',

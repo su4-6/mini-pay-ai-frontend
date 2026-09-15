@@ -103,3 +103,21 @@
 @media(max-width:760px){
   .sidebar{display:none}.workspace{margin-left:0!important}.mobileMenuButton{display:inline-flex}.desktopMenuButton{display:none}.header{padding-inline:14px}.headerLabel,.displayName{display:none}.content{padding:18px 14px}.grid,.roleCards{grid-template-columns:1fr}.pageTitle{display:block}.pageTitle span{display:block;margin-top:4px}
 }
+.deniedPage { min-height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 22px; padding: 32px; background: radial-gradient(1200px 620px at 50% -12%,#e8f1ff 0%,#f4f7fb 55%,#eef2f8 100%); }
+.deniedBrand { display: flex; align-items: center; gap: 12px; }
+.deniedBrand img { width: 46px; height: 46px; border-radius: 13px; box-shadow: 0 8px 22px rgba(22,119,255,.18); }
+.deniedBrand strong { display: block; color: #101828; font-size: 20px; letter-spacing: -.4px; }
+.deniedBrand small { display: block; margin-top: 2px; color: #98a2b3; font-size: 12px; }
+.deniedCard { width: min(600px,100%); border: 1px solid #e7edf5; border-radius: 18px; box-shadow: 0 18px 48px rgba(31,55,88,.10); }
+.deniedCard :global(.ant-card-body) { padding: 30px 32px 26px; }
+.deniedIcon { width: 54px; height: 54px; display: grid; place-items: center; margin-bottom: 16px; border-radius: 16px; color: #b54708; background: linear-gradient(135deg,#fff4e5,#ffe9cc); font-size: 25px; }
+.deniedTitle { margin: 0 0 10px; color: #101828; font-size: 21px; letter-spacing: -.3px; }
+.deniedLead { margin: 0 0 18px; color: #475467; font-size: 13.5px; line-height: 1.75; }
+.deniedFacts { padding: 14px 16px; margin-bottom: 16px; border: 1px solid #e7edf5; border-radius: 12px; background: #f8fafc; }
+.deniedFactsRow { display: flex; align-items: center; gap: 10px; font-size: 13px; color: #344054; }
+.deniedFactsRow + .deniedFactsRow { margin-top: 9px; }
+.deniedFactsRow b { min-width: 76px; color: #98a2b3; font-weight: 500; }
+.deniedRoles { margin-bottom: 20px; color: #475467; font-size: 13px; line-height: 2.1; }
+.deniedRoles :global(.ant-tag) { margin-inline-end: 4px; }
+.deniedActions { display: flex; flex-wrap: wrap; gap: 12px; }
+.deniedFooter { margin-top: 20px; padding-top: 14px; border-top: 1px solid #edf1f6; color: #98a2b3; font-size: 12px; line-height: 1.7; }

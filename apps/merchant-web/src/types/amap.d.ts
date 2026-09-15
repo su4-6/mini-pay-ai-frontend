@@ -26,6 +26,7 @@ declare namespace AMap {
 
   type Geocoder = {
     getAddress(position: [number, number], callback: (status: string, result: any) => void): void;
+    getLocation(address: string, callback: (status: string, result: any) => void): void;
   };
 
   type PlaceSearch = {

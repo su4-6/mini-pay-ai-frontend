@@ -208,7 +208,16 @@ async function request<T>(url: string, init: RequestInit = {}): Promise<T> {
       INVALID_REASON: '操作原因应为 3 至 200 个字符',
       INVALID_REASON_ENCODING: '操作原因格式不正确，请重新输入'
     };
-    throw new Error((code && messages[code]) ?? body?.detail ?? `请求失败（${response.status}）`);
+    // admin-bff / identity 对无权限账号返回的是裸 403（body 只有 "Access Denied"，
+    // 没有 problem code），此时给出可读原因，而不是「请求失败（403）」（变更 #43）。
+    throw new Error(
+      (code && messages[code])
+      ?? (response.status === 403
+        ? '当前账号没有管理端权限，请使用系统管理员账号登录'
+        : undefined)
+      ?? body?.detail
+      ?? `请求失败（${response.status}）`
+    );
   }
   return body as T;
 }

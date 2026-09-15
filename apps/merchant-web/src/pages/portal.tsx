@@ -10,8 +10,24 @@ import ShopImagesUpload from '../components/ShopImagesUpload';
 import { merchantApi, zh, type Merchant, type MerchantApplication, type MerchantApply, type MerchantOrder, type MerchantSession, type WalletBill } from '../services/merchant';
 import styles from './index.module.less';
 
-const TrendLineChart = lazy(() => import('../components/TrendLineChart'));
-const Line = (props: ComponentProps<typeof TrendLineChart>) => (
+// 经营类目：界面用中文，但库里可能存的是类目代码（如 OTHER / 5812），
+// 这里做双向兼容，避免下拉框直接显示英文码（变更 #45）。
+const CATEGORY_NAMES = ['餐饮', '零售', '生活服务', '其他'];
+const CATEGORY_LABELS: Record<string, string> = {
+  FOOD: '餐饮', CATERING: '餐饮', '5812': '餐饮', '5462': '餐饮',
+  RETAIL: '零售', '5411': '零售', '5311': '零售',
+  SERVICE: '生活服务', '7011': '生活服务', '7299': '生活服务',
+  OTHER: '其他', MISC: '其他'
+};
+const categoryOptions = (current?: string) => {
+  const options = CATEGORY_NAMES.map((value) => ({ value, label: value }));
+  if (current && !CATEGORY_NAMES.includes(current)) {
+    options.unshift({ value: current, label: CATEGORY_LABELS[current] ?? '其他' });
+  }
+  return options;
+};
+
+const TrendLineChart = lazy(() => import('../components/TrendLineChart'));const Line = (props: ComponentProps<typeof TrendLineChart>) => (
   <Suspense fallback={<Spin size="large" />}>
     <TrendLineChart {...props} />
   </Suspense>
@@ -153,7 +169,7 @@ function ProfilePage({ merchant }: { merchant: Merchant }) {
       }}>
         {merchant.profileConfirmationRequired && <Alert type="info" showIcon style={{ marginBottom: 16 }} message="运营方已为你创建商户并预填以下资料，如有缺失请补充后保存。" />}
         <Form.Item name="shortName" label="商户简称" rules={[{ required: true }, { min: 2, max: 32, message: '商户简称长度为 2～32 个字符' }]}><Input maxLength={32} placeholder="请输入对外展示简称" /></Form.Item>
-        <Form.Item name="mccCode" label="经营类目" rules={[{ required: true }]}><Select options={['餐饮', '零售', '生活服务', '其他'].map(value => ({ label: value, value }))} /></Form.Item>
+        <Form.Item name="mccCode" label="经营类目" rules={[{ required: true }]}><Select options={categoryOptions(merchant.category)} /></Form.Item>
         <Form.Item name="contactName" label="联系人" rules={[{ required: true }, { min: 2, max: 64, message: '联系人姓名长度为 2～64 个字符' }]}><Input maxLength={64} /></Form.Item>
         <Form.Item name="contactMobile" label="联系电话" extra="为登录账号手机号，不可修改">
           <Input disabled maxLength={11} />

@@ -18,6 +18,11 @@ const DEFAULT_CENTER: [number, number] = [116.397428, 39.90923]; // 北京天安
 
 // 提取高德回调失败时的具体错误码（如 INVALID_USER_SCODE / DAILY_QUERY_OVER_LIMIT）
 function errorDetail(status: string, result: unknown): string {
+  // 请求被网络中断/超时时，高德会把 Event 对象当作 status 传入（String(status) === '[object Event]'），
+  // 这类失败与「Key 无权使用」无关，必须给出可操作的提示。
+  if (typeof status !== 'string' || !status) {
+    return '网络请求失败';
+  }
   if (typeof result === 'string' && result) {
     return result;
   }
@@ -29,6 +34,24 @@ function errorDetail(status: string, result: unknown): string {
     return `${status}（${detail.message}）`;
   }
   return detail?.type ? `${status}（${detail.type}）` : String(status);
+}
+
+// 网络类失败：status 不是协议字符串（Event 对象），或高德显式返回 error/abort。
+// 这类失败重试一次通常即可恢复，与 Key 无权限、配额用尽区分开。
+function isTransportFailure(status: unknown): boolean {
+  return typeof status !== 'string' || status === 'error' || status === 'abort';
+}
+
+// 高德 JSAPI 返回的 location 既可能是 LngLat 对象，也可能是 "lng,lat" 字符串。
+function readLngLat(location: unknown): { longitude: number; latitude: number } | undefined {
+  if (typeof location === 'string' && location.includes(',')) {
+    const [lng, lat] = location.split(',').map(Number);
+    return Number.isFinite(lng) && Number.isFinite(lat) ? { longitude: lng, latitude: lat } : undefined;
+  }
+  const lnglat = location as { getLng?: () => number; getLat?: () => number } | undefined;
+  const lng = lnglat?.getLng?.();
+  const lat = lnglat?.getLat?.();
+  return typeof lng === 'number' && typeof lat === 'number' ? { longitude: lng, latitude: lat } : undefined;
 }
 
 /**
@@ -167,33 +190,61 @@ export default function LocationPicker({
     };
   }, [map, disabled]);
 
-  // 搜索地址定位
+  // 搜索地址定位：先做 POI 搜索（PlaceSearch），网络类失败自动重试一次；
+  // 仍失败则回退到地理编码（Geocoder.getLocation）——两套独立服务互相兜底，
+  // 避免偶发网络抖动直接判定「地址搜索失败」。
   const search = () => {
-    if (!map || !searchText.trim()) {
+    const keyword = searchText.trim();
+    if (!map || !keyword) {
       return;
     }
     const amap = (window as unknown as { AMap: typeof AMap }).AMap;
+    const applyPoint = (longitude: number, latitude: number, address: string) => {
+      setServiceError('');
+      onChangeRef.current?.({ latitude, longitude });
+      onAddressChangeRef.current?.(address);
+      map.setZoomAndCenter(16, [longitude, latitude]);
+    };
+    const fallbackToGeocoder = (failure: string) => {
+      ensurePlugin('AMap.Geocoder', 'Geocoder', () => {
+        const geocoder = new amap.Geocoder({ city: '全国' });
+        geocoder.getLocation(keyword, (geoStatus, geoResult) => {
+          const geocode = typeof geoResult === 'string' ? undefined : geoResult?.geocodes?.[0];
+          const point = readLngLat(geocode?.location);
+          if (geoStatus === 'complete' && point) {
+            applyPoint(point.longitude, point.latitude, geocode?.formattedAddress || keyword);
+            return;
+          }
+          setServiceError(
+            `地址搜索失败（${failure}）。可直接点击地图选点，或改用更完整的地址（含城市/区县）重试`
+          );
+        });
+      });
+    };
     // PlaceSearch 是高德 v2.0 插件，使用前先加载
     ensurePlugin('AMap.PlaceSearch', 'PlaceSearch', () => {
-      const placeSearch = new amap.PlaceSearch({ pageSize: 1 });
-      placeSearch.search(searchText.trim(), (status, result) => {
-        const poi = typeof result === 'string' ? undefined : result?.poiList?.pois?.[0];
-        if (status === 'complete' && poi && poi.location) {
-          setServiceError('');
-          const lng = poi.location.getLng();
-          const lat = poi.location.getLat();
-          onChangeRef.current?.({ latitude: lat, longitude: lng });
-          onAddressChangeRef.current?.(
-            poi.name + (poi.address ? `（${poi.address}）` : '')
-          );
-          map.setZoomAndCenter(16, [lng, lat]);
-        } else {
-          console.warn('[LocationPicker] 地址搜索失败:', status, result);
-          setServiceError(
-            `地址搜索失败（${errorDetail(status, result)}），请检查高德 Key 与域名白名单配置`
-          );
-        }
-      });
+      const run = (attempt: number) => {
+        const placeSearch = new amap.PlaceSearch({ pageSize: 1 });
+        placeSearch.search(keyword, (status, result) => {
+          const poi = typeof result === 'string' ? undefined : result?.poiList?.pois?.[0];
+          const point = readLngLat(poi?.location);
+          if (status === 'complete' && poi && point) {
+            applyPoint(
+              point.longitude,
+              point.latitude,
+              poi.name + (poi.address ? `（${poi.address}）` : '')
+            );
+            return;
+          }
+          console.warn('[LocationPicker] 地址搜索失败:', status, result, 'attempt', attempt);
+          if (attempt < 2 && isTransportFailure(status)) {
+            window.setTimeout(() => run(attempt + 1), 600);
+            return;
+          }
+          fallbackToGeocoder(errorDetail(status, result));
+        });
+      };
+      run(1);
     });
   };
 
