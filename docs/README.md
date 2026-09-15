@@ -12,6 +12,7 @@
 | [android-account-security.md](./android-account-security.md) | App 账号安全：短信登录、支付密码、设备与换绑 | 改 Android 账号链路 |
 | [food-bridge-v1.md](./food-bridge-v1.md) | 外卖 H5 与 App 的桥接协议（`window.MiniPayBridge`）与白名单 | 改外卖入口 |
 | [B端前端业务功能调试清单.md](./B端前端业务功能调试清单.md) | 运营端/商户端逐页功能与调试清单（人工验收用） | 联调、回归 |
+| [performance.md](./performance.md) | 构建配置取舍、首屏体积实测、缓存策略与后续优化方向 | 做性能优化 |
 | `prototypes/` | 运营端、商户端与 App 的交互原型图（22 张） | 对视觉 / 还原设计 |
 
 > 运行、构建、演示账号与性能数据见仓库根 [README.md](../README.md)；

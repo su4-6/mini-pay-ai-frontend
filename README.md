@@ -1,117 +1,116 @@
-# MiniPay AI Frontend
+# MiniPay AI · 前端
 
-MiniPay AI（移动端智能体名：**米灵**）的前端 Monorepo。包含三套 Web 控制台与一个 Android 消费者端：
+MiniPay AI 是一套**支付 + 生活服务（点餐外卖 + AI 助手「米灵」）**的全栈系统。本仓库是它的前端 Monorepo：
+三套 Web 控制台（运营 / 商户 / 系统管理）和一个 Android 消费者端。
 
-| 应用 | 入口路径 | 技术栈 | 线上地址 |
-| --- | --- | --- | --- |
-| `apps/admin-web` | `/`（根路径） | React 18 + Umi 4 + Ant Design 5 | https://admin.su46proj.site |
-| `apps/ops-web` | `/ops/` | 同上 | https://ops.su46proj.site/ops/ |
-| `apps/merchant-web` | `/merchant/` | 同上 | https://merchant.su46proj.site/merchant/ |
-| `android` | — | Kotlin + Jetpack Compose | APK：https://download.su46proj.site/downloads/minipay-latest.apk |
+- **在线体验**：运营平台 [ops.su46proj.site/ops](https://ops.su46proj.site/ops/) · 商户平台 [merchant.su46proj.site/merchant](https://merchant.su46proj.site/merchant/) · 系统管理 [admin.su46proj.site](https://admin.su46proj.site/)
+- **Android 安装包**：[download.su46proj.site/downloads/minipay-latest.apk](https://download.su46proj.site/downloads/minipay-latest.apk)
+- **后端服务与部署**：[mini-pay-ai-backend](https://github.com/su4-6/mini-pay-ai-backend)
 
-> 三个控制台是**同一套设计语言、三套独立构建**：`admin-web` 构建在站点根路径，`ops-web` / `merchant-web` 构建在子路径
-> （Umi 的 `base` + `publicPath`），因此网关侧必须先剥前缀再交给静态容器，否则 JS/CSS 会 404 白屏。
-> 项目开发、测试与安全要求见 [项目规范](./docs/PROJECT_STANDARDS.md)。
+演示账号密码统一为 `MiniPay@123456`：运营 `13800138000`、商户 `13900000009`、系统管理 `13800138002`；
+App 用任意演示手机号 + 短信验证码 `123456`。演示环境数据是构造的，请不要填写真实个人信息。
 
-## 仓库结构
+## 界面一览
+
+<table>
+  <tr>
+    <td width="62%"><img src="./docs/prototypes/%E8%BF%90%E8%90%A5%E4%B8%BB%E9%A1%B5.png" alt="运营平台 · 运营总览"><br><sub>运营平台 · 运营总览（实时交易趋势与待处理告警）</sub></td>
+    <td width="38%"><img src="./docs/prototypes/%E7%B1%B3%E7%81%B5-%E4%B8%BB%E9%A1%B5.png" alt="Android · 米灵"><br><sub>Android · 米灵（AI 助手首页）</sub></td>
+  </tr>
+  <tr>
+    <td colspan="2"><img src="./docs/prototypes/%E5%95%86%E6%88%B7%E4%B8%BB%E9%A1%B5.png" alt="商户平台 · 商户门户"><br><sub>商户平台 · 商户门户（收款、结算与订单概览）</sub></td>
+  </tr>
+</table>
+
+更多页面见 [docs/prototypes](./docs/prototypes)（22 张，覆盖三端与 App）。
+
+## 四端各自的职责
+
+| 应用 | 使用者 | 主要内容 |
+| --- | --- | --- |
+| `apps/ops-web` | 平台运营 | 运营总览、商户与入驻审核、支付/退款/转账/充值/提现订单、外卖订单、收款记录、通知中心、登录审计 |
+| `apps/merchant-web` | 商户 | 商户门户、门店资料与经营位置（地图选点）、收款与结算、订单查询、退款处理、应用与密钥管理 |
+| `apps/admin-web` | 系统管理员 | 账号与角色、系统审计、服务健康聚合、通知与邮件配置 |
+| `android` | C 端用户 | AI 助手「米灵」流式对话、钱包与账单、转账收款、支付密码、订单与外卖入口、个人资料 |
+
+## 技术栈
+
+| 层 | 选型 |
+| --- | --- |
+| Web | React 18 · Umi 4 · Ant Design 5 · TypeScript 5 |
+| 工程 | pnpm workspace 单仓多包（`apps/*` + `packages/*`）、ESLint + Prettier + Playwright |
+| 地图 | 高德地图 JS SDK（Web 选点/搜索）、高德 Android SDK（定位与天气） |
+| App | Kotlin · Jetpack Compose · 单 Activity 导航 · WebView 桥接外卖 H5 |
+| 构建产物 | 三端同构静态镜像（`nginx:1.27-alpine` 托管，监听 8080） |
+
+## 目录结构
 
 | 路径 | 内容 |
 | --- | --- |
-| `apps/admin-web` · `apps/ops-web` · `apps/merchant-web` | 三套控制台（Umi 4 + Ant Design 5），各自独立构建 |
-| `packages/` | 共享包：`api-client`（请求封装）、`api-contracts`（DTO 类型）、`design-tokens`（设计变量）、`ui-desktop`/`ui-mobile`、`shared` |
-| `android/` | 消费者端 Android 工程（Kotlin + Compose + 高德 SDK） |
+| `apps/admin-web` · `apps/ops-web` · `apps/merchant-web` | 三套控制台，各自独立构建 |
+| `packages/` | 共享包：`api-client`（请求封装与错误语义）、`api-contracts`（DTO 类型）、`design-tokens`（设计变量）、`ui-desktop` / `ui-mobile`、`shared` |
+| `android/` | Android 工程与打包说明（[android/README.md](./android/README.md)） |
 | `docker/` | 静态镜像定义 [k3s-web.Dockerfile](./docker/k3s-web.Dockerfile) 与镜像内 nginx 配置 |
-| `e2e/` | Playwright 冒烟用例（mock 后端响应，校验运营端关键页面） |
-| `integrations/yshop/` | YShop 外卖后台与 H5 源码，外卖镜像的构建来源（见 [integrations/README.md](./integrations/README.md)） |
-| `docs/` | PRD、前端系统分析与设计、Android 需求、原型图与工程规范 |
+| `e2e/` | Playwright 冒烟用例（mock 后端响应，覆盖运营端关键页面） |
+| `integrations/yshop/` | YShop 外卖后台与 H5 源码，外卖镜像的构建来源（[integrations/README.md](./integrations/README.md)） |
+| `docs/` | 需求、系统设计、Android 需求、原型图、工程规范（[docs/README.md](./docs/README.md)） |
 | `scripts/` | 本地开发与真机运行辅助脚本 |
 
-> 部署路径只有 K3s：早期那套单机 docker-compose 预览（根 `Dockerfile`、`compose.server.yaml`、
-> `docker/{merchant,ops,admin}-nginx.conf`、`scripts/deploy-server.sh`）随迁移到 K3s 一并删除，
-> 需要时从 Git 历史取回；镜像统一由 `docker/k3s-web.Dockerfile` 构建。
+三套控制台共用同一套设计语言，但**独立构建**：`admin-web` 构建在站点根路径，`ops-web` / `merchant-web`
+构建在子路径（Umi 的 `base` + `publicPath`）。因此网关必须先剥离路径前缀，否则 JS/CSS 会 404。
 
-## 线上演示账号
+## 本地开发
 
-| 端 | 地址 | 账号 | 密码 |
-| --- | --- | --- | --- |
-| 运营平台 | https://ops.su46proj.site/ops/ | `13800138000` | `MiniPay@123456` |
-| 商户平台 | https://merchant.su46proj.site/merchant/ | `13900000009` | `MiniPay@123456` |
-| 系统管理平台 | https://admin.su46proj.site/ | `13800138002` | `MiniPay@123456` |
-| Android App | 同上 APK 链接 | 任意演示手机号 + 短信验证码 `123456` | — |
-
-登录页有图形验证码；App 端固定演示验证码为 `123456`。
-
-> 权限边界：系统管理平台只对 `system_super_admin` / `system_account_admin` / `system_auditor` 开放；
-> 运营账号（`platform_admin`）访问管理端会被拒绝，前端会显示一张纯中文的「当前账号没有管理端权限」说明页，
-> 而不是把后端的 403 显示成「加载失败」。
-
-## 常用命令
-
-```powershell
-pnpm install
-pnpm verify                     # lint + typecheck + test + build
-pnpm --filter @minipay/ops-web dev
-pnpm --filter @minipay/merchant-web build
-```
-
-## 构建期环境变量
-
-Umi 的 `define` 会在**构建期**把下列变量烤进产物，改完必须重新构建（不是运行时变量）：
-
-| 变量 | 用途 | 生产取值 |
-| --- | --- | --- |
-| `MINIPAY_DEPLOY_BASE` | 应用基路径（不设时生产默认 `/ops/`、`/merchant/`） | 按应用 |
-| `AMAP_KEY` / `AMAP_SECURITY_CODE` | 高德 Web 端 JS Key 与安全密钥（jscode）。**两者必须成对**：只给 Key 不给 jscode，地图能出但搜索/逆地理会失败 | `05ccd000…ca9e` / `5998e7a6…9547` |
-| `OPS_WEB_PUBLIC_URL` / `MERCHANT_WEB_PUBLIC_URL` / `ADMIN_WEB_PUBLIC_URL` | 登录页「切换门户」链接 | 对应的线上域名 |
-
-```powershell
-$env:AMAP_KEY='<Web JS Key>'; $env:AMAP_SECURITY_CODE='<jscode>'
-pnpm --filter @minipay/ops-web build
-```
-
-高德 SDK 是**按需异步加载**的：只有地图组件（商户“经营位置（地图选点）”）真正出现时才注入 `webapi.amap.com`，
-登录页与普通列表页不会为它付出首屏成本。地图搜索做了两级兜底：网络类失败自动重试一次，
-仍失败则回退地理编码（`Geocoder.getLocation`），避免偶发网络抖动被误报成「Key 配置错误」。
-
-## 镜像与部署
-
-三个应用使用同一份静态镜像定义 [docker/k3s-web.Dockerfile](./docker/k3s-web.Dockerfile)（`nginx:1.27-alpine`，监听 8080）：
+需要 Node 20+ 与 pnpm 10：
 
 ```bash
-docker build -f docker/k3s-web.Dockerfile --build-arg APP=ops-web -t suqihang/ops-web:<tag> .
+pnpm install
+pnpm --filter @minipay/ops-web dev        # 运营平台，默认 http://127.0.0.1:8000
+pnpm --filter @minipay/merchant-web dev   # 商户平台
+pnpm --filter @minipay/admin-web dev      # 系统管理平台
+pnpm verify                               # lint + typecheck + test + build
+pnpm e2e                                  # Playwright 冒烟（会自动构建并起静态服务）
 ```
 
-镜像内的 nginx 行为（[docker/k3s-static-nginx.conf](./docker/k3s-static-nginx.conf)）：
+登录依赖后端身份服务，本地联调步骤见后端仓库的 [RUNBOOK.md](https://github.com/su4-6/mini-pay-ai-backend/blob/main/RUNBOOK.md)。
 
-- HTML 外壳 `Cache-Control: no-cache`（保证前端修复能上线），hash 资源 `public, max-age=604800, immutable`
-- `try_files $uri $uri/ /index.html` 支撑 SPA 路由
+### 构建期环境变量
 
-部署到 K3s 的清单、网关路由和回滚方式见后端仓库 [deploy/k3s/README.md](../mini-pay-ai-backend/deploy/k3s/README.md)。
+Umi 会把下列变量**在构建期写进产物**，改完必须重新构建：
 
-## 性能实践（含实测）
+| 变量 | 用途 | 说明 |
+| --- | --- | --- |
+| `MINIPAY_DEPLOY_BASE` | 应用基路径 | 生产默认 `/ops/`、`/merchant/`；`admin-web` 在根路径 |
+| `AMAP_KEY` · `AMAP_SECURITY_CODE` | 高德 Web JS Key 与安全密钥 | **必须成对**，只配 Key 不配 jscode 时地图能出、搜索会失败 |
+| `OPS_WEB_PUBLIC_URL` · `MERCHANT_WEB_PUBLIC_URL` · `ADMIN_WEB_PUBLIC_URL` | 登录页「切换门户」链接 | 不设置时按当前域名推导 |
 
-| 手段 | 说明 |
-| --- | --- |
-| `codeSplitting: { jsStrategy: 'granularChunks' }` | 按 npm 包拆分 vendor，避免单个巨型 chunk |
-| `jsMinifier: 'terser'` | 比 esbuild 压缩率更高：`umi.js` 223→**189 KB**、`237.*.async.js` 324→**299 KB**（gzip） |
-| `mfsu: false` | 生产构建不做依赖预打包，产物稳定可复现 |
-| 按需加载高德 SDK | 首屏不再拉高德脚本 |
-| logo 256×256（8 KB） | 原 1024×1024（45 KB）；**未哈希资源换文件后必须清理 CDN 缓存** |
-| hash 文件名 + `immutable` | 配合 Cloudflare 边缘缓存，热加载几乎 0 字节回源 |
+```bash
+AMAP_KEY=<Web JS Key> AMAP_SECURITY_CODE=<jscode> pnpm --filter @minipay/ops-web build
+```
 
-实测（无头浏览器冷/热加载，`ops/login`）：首屏传输 **414 KB → 325 KB（−21%）**，其中 JS 358→310 KB、图片 48→11 KB；
-热加载 0.44–0.50 s。复现方式：后端仓库 `_codex_digest/accept/cdp-perf.mjs`（本地验收脚本，不入库）。
+## 构建与部署
 
-## Android
+三个应用共用同一个静态镜像定义，通过 `APP` 参数选择构建目标：
 
-Debug 默认连接本机服务，可在不提交版本库的 `android/local.properties` 覆盖；
-Release 必须提供全部 HTTPS 地址与签名属性，详见 [android/README.md](./android/README.md)。
+```bash
+docker build -f docker/k3s-web.Dockerfile --build-arg APP=ops-web -t <registry>/ops-web:<tag> .
+```
 
-当前线上包：`versionName 0.1.5` / `versionCode 6`（`com.minipay.mobile`），
-40,254,032 B，已内置高德 Android Key（`com.amap.api.v2.apikey`）。
+镜像内 nginx 负责 SPA 回退（`try_files $uri $uri/ /index.html`）与缓存策略：HTML 外壳不缓存，
+带 hash 的静态资源长缓存（`immutable`）。集群清单、网关路由与回滚方式见后端仓库
+[deploy/k3s/README.md](https://github.com/su4-6/mini-pay-ai-backend/blob/main/deploy/k3s/README.md)。
 
-主页定位与实时天气使用高德 Android SDK：请在不提交版本库的 `android/local.properties` 配置
-`MINIPAY_AMAP_ANDROID_KEY=<Android Key>`；该 Key 需要绑定包名 `com.minipay.mobile` 与对应签名 SHA1。
-未配置时应用仍可运行，地图相关界面会给出可重试的降级提示。
+Android 的 Debug / Release 打包参数（含签名与高德 Key）见 [android/README.md](./android/README.md)。
 
-Food（外卖）WebView 默认不加载远程页面；启用前必须配置受信任的 HTTPS 域名并完成后端授权契约。
+## 工程约定
+
+- 请求统一走 `packages/api-client`，错误按后端的 Problem Details（`code` + `requestId`）转成前端可读文案，不在页面里直接拼 `fetch`。
+- 页面级权限用 `AuthGate` + 路由清单统一声明，避免每个页面各写一套判断。
+- 金额一律以「分」传输与展示（整数运算），时间统一按 ISO-8601 解析后本地化。
+- 新增页面必须补 `navigation` 注册与最基础的渲染测试；提交前跑 `pnpm verify`。
+
+完整规范见 [docs/PROJECT_STANDARDS.md](./docs/PROJECT_STANDARDS.md)。
+
+## 联系
+
+问题或建议：`su_qihang@163.com`
