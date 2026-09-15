@@ -13,6 +13,23 @@ MiniPay AI（移动端智能体名：**米灵**）的前端 Monorepo。包含三
 > （Umi 的 `base` + `publicPath`），因此网关侧必须先剥前缀再交给静态容器，否则 JS/CSS 会 404 白屏。
 > 项目开发、测试与安全要求见 [项目规范](./docs/PROJECT_STANDARDS.md)。
 
+## 仓库结构
+
+| 路径 | 内容 |
+| --- | --- |
+| `apps/admin-web` · `apps/ops-web` · `apps/merchant-web` | 三套控制台（Umi 4 + Ant Design 5），各自独立构建 |
+| `packages/` | 共享包：`api-client`（请求封装）、`api-contracts`（DTO 类型）、`design-tokens`（设计变量）、`ui-desktop`/`ui-mobile`、`shared` |
+| `android/` | 消费者端 Android 工程（Kotlin + Compose + 高德 SDK） |
+| `docker/` | 静态镜像定义 [k3s-web.Dockerfile](./docker/k3s-web.Dockerfile) 与镜像内 nginx 配置 |
+| `e2e/` | Playwright 冒烟用例（mock 后端响应，校验运营端关键页面） |
+| `integrations/yshop/` | YShop 外卖后台与 H5 源码，外卖镜像的构建来源（见 [integrations/README.md](./integrations/README.md)） |
+| `docs/` | PRD、前端系统分析与设计、Android 需求、原型图与工程规范 |
+| `scripts/` | 本地开发与真机运行辅助脚本 |
+
+> 部署路径只有 K3s：早期那套单机 docker-compose 预览（根 `Dockerfile`、`compose.server.yaml`、
+> `docker/{merchant,ops,admin}-nginx.conf`、`scripts/deploy-server.sh`）随迁移到 K3s 一并删除，
+> 需要时从 Git 历史取回；镜像统一由 `docker/k3s-web.Dockerfile` 构建。
+
 ## 线上演示账号
 
 | 端 | 地址 | 账号 | 密码 |
