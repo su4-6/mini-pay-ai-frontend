@@ -69,7 +69,12 @@ $env:ANDROID_HOME = "<Android SDK>"
 4. 天气/POI 搜索依赖同一把 Key 的「Android 平台」授权；搜索失败不会让定位一起失败
    （代码里天气失败会降级为只显示城市）。
 
-当前线上包：`versionName 0.1.6` / `versionCode 7`。
+当前线上包：`versionName 0.1.7` / `versionCode 8`（本版换用新的高德 Android Key，
+该 Key 绑定发布签名 SHA-1 `917B49F1…4B29` 与包名 `com.minipay.mobile`）。
+
+> Key 值不进版本库：本地放在 `C:\minipay-keys\amap-android-key.txt`，打包脚本
+> （工作区 `_codex_digest/accept/build-apk.ps1`）优先从这里读，其次读环境变量
+> `MINIPAY_AMAP_ANDROID_KEY`。**只改环境变量容易在后台/管道调用里没被继承而打进旧 Key**（已踩过）。
 
 
 ## 网络恢复边界
