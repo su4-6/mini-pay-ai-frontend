@@ -4,7 +4,7 @@ MiniPay AI 是一套**支付 + 生活服务（点餐外卖 + AI 助手「米灵�
 三套 Web 控制台（运营 / 商户 / 系统管理）和一个 Android 消费者端。
 
 - **在线体验**：运营平台 [ops.su46proj.site/ops](https://ops.su46proj.site/ops/) · 商户平台 [merchant.su46proj.site/merchant](https://merchant.su46proj.site/merchant/) · 系统管理 [admin.su46proj.site](https://admin.su46proj.site/)
-- **Android 安装包**：[download.su46proj.site/downloads/minipay-latest.apk](https://download.su46proj.site/downloads/minipay-latest.apk)
+- **Android 安装包**：[dl.su46proj.site/downloads/minipay-latest.apk](https://dl.su46proj.site/downloads/minipay-latest.apk)（经国内 CDN 加速，回退地址 `download.su46proj.site`）；当前版本 `0.1.7` / versionCode 8
 - **后端服务与部署**：[mini-pay-ai-backend](https://github.com/su4-6/mini-pay-ai-backend)
 
 演示账号密码统一为 `MiniPay@123456`：运营 `13800138000`、商户 `13900000009`、系统管理 `13800138002`；

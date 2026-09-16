@@ -72,6 +72,12 @@ $env:ANDROID_HOME = "<Android SDK>"
 当前线上包：`versionName 0.1.7` / `versionCode 8`（本版换用新的高德 Android Key，
 该 Key 绑定发布签名 SHA-1 `917B49F1…4B29` 与包名 `com.minipay.mobile`）。
 
+- 下载（国内 CDN，快）：`https://dl.su46proj.site/downloads/minipay-latest.apk`
+- 回退地址（R2 直连）：`https://download.su46proj.site/downloads/minipay-latest.apk`
+- 发布后核对（两个入口都应一致）：40,252,600 B、MD5 `3706a61367b16fe2b67f31d843fc5900`、
+  `aapt2 dump badging` 显示 `versionCode 8 / versionName 0.1.7`、清单里高德 Key 为新 Key。
+- ⚠️ 换包后必须刷新腾讯云 CDN 缓存：`node _codex_digest/accept/tencent-cdn.mjs purge https://dl.su46proj.site/downloads/minipay-latest.apk`
+
 > Key 值不进版本库：本地放在 `C:\minipay-keys\amap-android-key.txt`，打包脚本
 > （工作区 `_codex_digest/accept/build-apk.ps1`）优先从这里读，其次读环境变量
 > `MINIPAY_AMAP_ANDROID_KEY`。**只改环境变量容易在后台/管道调用里没被继承而打进旧 Key**（已踩过）。
