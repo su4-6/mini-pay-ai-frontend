@@ -13,6 +13,7 @@ import com.amap.api.services.weather.WeatherSearchQuery
 import com.minipay.mobile.BuildConfig
 import com.minipay.mobile.finance.FinanceRepository
 import com.minipay.mobile.finance.WalletBill
+import com.minipay.mobile.platform.AmapPrivacy
 import com.minipay.mobile.ui.home.AppService
 import androidx.lifecycle.viewModelScope
 import dagger.Module
@@ -59,10 +60,29 @@ fun LocationSnapshot.isFresh(
     maxAgeMillis: Long = 5 * 60_000L
 ): Boolean = nowEpochMillis - capturedAtEpochMillis in 0..maxAgeMillis
 
+/**
+ * 定位失败。[amapCode] 是高德定位回调的 errorCode（-1 表示尚未拿到回调），
+ * 用于日志与界面提示 —— 12 通常意味着高德 Key/签名不匹配或缺少定位权限。
+ */
 class LocationAcquisitionException(
     val stableCode: String,
+    val amapCode: Int = NO_AMAP_CODE,
     cause: Throwable? = null
-) : IllegalStateException(stableCode, cause)
+) : IllegalStateException(stableCode, cause) {
+    companion object {
+        const val NO_AMAP_CODE = -1
+    }
+}
+
+/** 把高德错误码翻译成用户能看懂的一句话（界面提示用，尽量短）。 */
+fun locationFailureHint(code: Int): String = when (code) {
+    LocationAcquisitionException.NO_AMAP_CODE -> ""
+    12 -> "（错误码 12：高德 Key/签名绑定或定位权限有问题）"
+    13 -> "（错误码 13：网络解析失败，请检查网络）"
+    14 -> "（错误码 14：GPS 未开启或信号弱）"
+    18 -> "（错误码 18：系统定位服务已关闭）"
+    else -> "（错误码 $code）"
+}
 
 interface LocationWeatherProvider {
     fun cached(): LocationWeather?
@@ -95,9 +115,9 @@ class AMapLocationWeatherProvider @Inject constructor(
 
     override suspend fun locate(): Result<LocationSnapshot> = runCatching {
         check(BuildConfig.AMAP_API_KEY.isNotBlank()) { "高德地图 Key 未配置" }
-        AMapLocationClient.updatePrivacyShow(context, true, true)
-        AMapLocationClient.updatePrivacyAgree(context, true)
-        suspendCancellableCoroutine { continuation: CancellableContinuation<LocationSnapshot?> ->
+        AmapPrivacy.agree(context)
+        var failureCode = LocationAcquisitionException.NO_AMAP_CODE
+        val snapshot = suspendCancellableCoroutine { continuation: CancellableContinuation<LocationSnapshot?> ->
             val client = AMapLocationClient(context)
             val option = AMapLocationClientOption().apply {
                 locationMode = AMapLocationClientOption.AMapLocationMode.Hight_Accuracy
@@ -119,7 +139,8 @@ class AMapLocationWeatherProvider @Inject constructor(
                         accuracyMeters = result.accuracy.toDouble()
                     ))
                 } else {
-                    Log.w(TAG, "AMap location failed; code=${result?.errorCode ?: -1}")
+                    failureCode = result?.errorCode ?: LocationAcquisitionException.NO_AMAP_CODE
+                    Log.w(TAG, "AMap location failed; code=$failureCode info=${result?.errorInfo ?: "-"}")
                     continuation.resume(null)
                 }
             }
@@ -128,18 +149,19 @@ class AMapLocationWeatherProvider @Inject constructor(
                 client.onDestroy()
             }
             client.startLocation()
-        }?.also { latestLocation = it }
-            ?: throw LocationAcquisitionException("LOCATION_FAILED")
+        } ?: throw LocationAcquisitionException("LOCATION_FAILED", failureCode)
+        latestLocation = snapshot
+        snapshot
     }.recoverCatching { cause ->
         if (cause is LocationAcquisitionException) throw cause
         Log.w(TAG, "AMap location unavailable; type=${cause.javaClass.simpleName}")
-        throw LocationAcquisitionException("LOCATION_FAILED", cause)
+        throw LocationAcquisitionException("LOCATION_FAILED", cause = cause)
     }
 
     override suspend fun locateAndReadWeather(): Result<LocationWeather> = runCatching {
         check(BuildConfig.AMAP_API_KEY.isNotBlank()) { "高德地图 Key 未配置" }
-        AMapLocationClient.updatePrivacyShow(context, true, true)
-        AMapLocationClient.updatePrivacyAgree(context, true)
+        AmapPrivacy.agree(context)
+        var locationFailureCode = LocationAcquisitionException.NO_AMAP_CODE
         val location: LocatedPoint = suspendCancellableCoroutine { continuation: CancellableContinuation<LocatedPoint?> ->
             val client = AMapLocationClient(context)
             val option = AMapLocationClientOption().apply {
@@ -160,6 +182,8 @@ class AMapLocationWeatherProvider @Inject constructor(
                         result.longitude, result.accuracy.toDouble()
                     ))
                 } else {
+                    locationFailureCode = result?.errorCode ?: LocationAcquisitionException.NO_AMAP_CODE
+                    Log.w(TAG, "AMap location failed; code=$locationFailureCode info=${result?.errorInfo ?: "-"}")
                     continuation.resume(null)
                 }
             }
@@ -168,7 +192,7 @@ class AMapLocationWeatherProvider @Inject constructor(
                 client.onDestroy()
             }
             client.startLocation()
-        } ?: error("无法获取当前位置")
+        } ?: throw LocationAcquisitionException("LOCATION_FAILED", locationFailureCode)
 
         latestLocation = LocationSnapshot(
             latitude = location.latitude,
@@ -176,14 +200,36 @@ class AMapLocationWeatherProvider @Inject constructor(
             accuracyMeters = location.accuracyMeters
         )
 
-        val live: LocalWeatherLive = suspendCancellableCoroutine { continuation: CancellableContinuation<LocalWeatherLive?> ->
+        // 天气只是锦上添花：搜索失败（例如高德搜索 SDK 未完成隐私声明、配额用尽）
+        // 不能再把整个定位链路拖垮 —— 这里降级为「只有城市、没有天气」。
+        val live = readLiveWeather(location)
+
+        LocationWeather(
+            city = live?.city?.takeIf { it.isNotBlank() } ?: location.city,
+            adCode = live?.adCode?.takeIf { it.isNotBlank() } ?: location.adCode,
+            weather = live?.weather.orEmpty(),
+            temperature = live?.temperature.orEmpty(),
+            latitude = location.latitude,
+            longitude = location.longitude,
+            accuracyMeters = location.accuracyMeters
+        ).also {
+            latest = it
+            save(it)
+        }
+    }
+
+    private suspend fun readLiveWeather(location: LocatedPoint): LocalWeatherLive? =
+        suspendCancellableCoroutine { continuation: CancellableContinuation<LocalWeatherLive?> ->
             val search = WeatherSearch(context)
             search.setOnWeatherSearchListener(object : WeatherSearch.OnWeatherSearchListener {
                 override fun onWeatherLiveSearched(result: LocalWeatherLiveResult?, code: Int) {
                     if (!continuation.isActive) return
                     if (code == AMapException.CODE_AMAP_SUCCESS && result?.liveResult != null) {
                         continuation.resume(result.liveResult)
-                    } else continuation.resume(null)
+                    } else {
+                        Log.w(TAG, "AMap weather search failed; code=$code")
+                        continuation.resume(null)
+                    }
                 }
 
                 override fun onWeatherForecastSearched(result: LocalWeatherForecastResult?, code: Int) = Unit
@@ -193,21 +239,7 @@ class AMapLocationWeatherProvider @Inject constructor(
                 WeatherSearchQuery.WEATHER_TYPE_LIVE
             )
             search.searchWeatherAsyn()
-        } ?: error("无法获取实时天气")
-
-        LocationWeather(
-            city = live.city.ifBlank { location.city },
-            adCode = live.adCode.ifBlank { location.adCode },
-            weather = live.weather.orEmpty(),
-            temperature = live.temperature.orEmpty(),
-            latitude = location.latitude,
-            longitude = location.longitude,
-            accuracyMeters = location.accuracyMeters
-        ).also {
-            latest = it
-            save(it)
         }
-    }
 
     private fun save(value: LocationWeather) {
         preferences.edit()
@@ -275,7 +307,7 @@ class HomeViewModel @Inject constructor(
         if (!permissionGranted) {
             mutableState.value = mutableState.value.copy(
                 locating = false,
-                locationError = if (mutableState.value.locationWeather == null) "定位失败，点击重试" else "定位权限未开启"
+                locationError = if (mutableState.value.locationWeather == null) "定位权限未开启，点击授权" else "定位权限未开启"
             )
             return
         }
@@ -284,10 +316,16 @@ class HomeViewModel @Inject constructor(
         viewModelScope.launch {
             locationWeatherProvider.locateAndReadWeather()
                 .onSuccess { mutableState.value = mutableState.value.copy(locationWeather = it, locating = false) }
-                .onFailure {
+                .onFailure { failure ->
+                    val code = (failure as? LocationAcquisitionException)?.amapCode
+                        ?: LocationAcquisitionException.NO_AMAP_CODE
                     mutableState.value = mutableState.value.copy(
                         locating = false,
-                        locationError = if (mutableState.value.locationWeather == null) "定位失败，点击重试" else "更新失败，已显示上次结果"
+                        locationError = if (mutableState.value.locationWeather == null) {
+                            "定位失败${locationFailureHint(code)}，点击重试"
+                        } else {
+                            "更新失败，已显示上次结果"
+                        }
                     )
                 }
         }

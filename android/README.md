@@ -50,6 +50,28 @@ $env:ANDROID_HOME = "<Android SDK>"
 > 若地图白屏，请抓 `adb logcat | Select-String "amap|AMap|INVALID_USER|USERKEY"`：
 > `INVALID_USER_KEY` 多为 Key 写错；`USERKEY_PLAT_NOMATCH` / `INVALID_USER_SCODE` 多为**签名 SHA1 或包名**不匹配。
 
+## 高德 SDK 的隐私合规与定位排错
+
+高德的三套 SDK（定位 / 地图 / 搜索）各自要求在**首次使用前**调用自己的
+`updatePrivacyShow(...)` + `updatePrivacyAgree(...)`，任何一套漏掉都会让对应能力直接失败
+（定位回调 `errorCode=12`，搜索抛「缺少隐私合规接口调用」）。声明统一放在
+[`platform/AmapPrivacy.kt`](./app/src/main/java/com/minipay/mobile/platform/AmapPrivacy.kt)，
+由 `MiniPayApplication.onCreate()` 在启动时执行一次（幂等，各处可安全重复调用）。
+
+排错顺序：
+
+1. 首页城市位置显示「定位失败（错误码 N）」时，先看这个码：
+   `12` = 高德 Key/包名/签名绑定不匹配，或没有定位权限；`13` = 网络解析失败；
+   `14` = GPS 未开启或信号弱；`18` = 系统定位服务被关闭。
+2. 权限：`adb shell dumpsys package com.minipay.mobile | Select-String LOCATION` 看是否已授予。
+3. Key 绑定：高德控制台里该 Key 必须绑定包名 `com.minipay.mobile` 与**发布签名**的 SHA-1
+   （当前发布证书 SHA-1：`917B:49F1:794B:C667:5031:F7FE:5E9C:C6B5:8F8A:4B29`）。
+4. 天气/POI 搜索依赖同一把 Key 的「Android 平台」授权；搜索失败不会让定位一起失败
+   （代码里天气失败会降级为只显示城市）。
+
+当前线上包：`versionName 0.1.6` / `versionCode 7`。
+
+
 ## 网络恢复边界
 
 - OkHttp 的通用 `retryOnConnectionFailure` 保持关闭，避免自动重放 Token 轮换、支付、转账或其他写请求。

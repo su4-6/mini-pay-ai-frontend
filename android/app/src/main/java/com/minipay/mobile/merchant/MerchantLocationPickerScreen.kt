@@ -66,14 +66,12 @@ import com.amap.api.location.AMapLocationClientOption
 import com.amap.api.maps.AMap
 import com.amap.api.maps.CameraUpdateFactory
 import com.amap.api.maps.MapView
-import com.amap.api.maps.MapsInitializer
 import com.amap.api.maps.model.CameraPosition
 import com.amap.api.maps.model.LatLng
 import com.amap.api.services.core.AMapException
 import com.amap.api.services.core.LatLonPoint
 import com.amap.api.services.core.PoiItem
 import com.amap.api.services.core.PoiItemV2
-import com.amap.api.services.core.ServiceSettings
 import com.amap.api.services.geocoder.GeocodeResult
 import com.amap.api.services.geocoder.GeocodeSearch
 import com.amap.api.services.geocoder.RegeocodeQuery
@@ -83,6 +81,7 @@ import com.amap.api.services.help.InputtipsQuery
 import com.amap.api.services.poisearch.PoiResultV2
 import com.amap.api.services.poisearch.PoiSearchV2
 import com.minipay.mobile.BuildConfig
+import com.minipay.mobile.platform.AmapPrivacy
 import java.util.Locale
 import kotlinx.coroutines.delay
 
@@ -755,12 +754,10 @@ private fun PlaceRow(place: MerchantPlaceOption, onClick: () -> Unit) {
 private fun initializeMerchantAmap(context: Context): String? {
     if (BuildConfig.AMAP_API_KEY.isBlank()) return "地图服务未配置，请配置高德地图 Key 后重试"
     return runCatching {
-        MapsInitializer.updatePrivacyShow(context, true, true)
-        MapsInitializer.updatePrivacyAgree(context, true)
-        ServiceSettings.updatePrivacyShow(context, true, true)
-        ServiceSettings.updatePrivacyAgree(context, true)
-        AMapLocationClient.updatePrivacyShow(context, true, true)
-        AMapLocationClient.updatePrivacyAgree(context, true)
+        // 三套 SDK（地图 / 搜索 / 定位）的隐私合规声明统一放在 AmapPrivacy，
+        // Application 启动时已声明一次，这里再兜底调用一次（幂等）。
+        AmapPrivacy.agree(context)
+        check(AmapPrivacy.isDeclared()) { "AMap privacy not declared" }
     }.exceptionOrNull()?.let { "地图初始化失败，请稍后重试" }
 }
 
