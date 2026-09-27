@@ -1,14 +1,14 @@
 # MiniPay AI · 前端
 
 MiniPay AI 是一套**支付 + 生活服务（点餐外卖 + AI 助手「米灵」）**的全栈系统。本仓库是它的前端 Monorepo：
-三套 Web 控制台（运营 / 商户 / 系统管理）和一个 Android 消费者端。
+消费者 H5 与三套 Web 控制台（运营 / 商户 / 系统管理）。Android 消费者端**已从线上下线**，源码保留。
 
-- **在线体验**：运营平台 [ops.su46proj.site/ops](https://ops.su46proj.site/ops/) · 商户平台 [merchant.su46proj.site/merchant](https://merchant.su46proj.site/merchant/) · 系统管理 [admin.su46proj.site](https://admin.su46proj.site/)
-- **Android 安装包**：[dl.su46proj.site/downloads/minipay-latest.apk](https://dl.su46proj.site/downloads/minipay-latest.apk)（经国内 CDN 加速，回退地址 `download.su46proj.site`）；当前版本 `0.1.7` / versionCode 8
+- **在线体验**：消费者端 [app.su46proj.site](https://app.su46proj.site/) · 运营平台 [ops.su46proj.site/ops](https://ops.su46proj.site/ops/) · 商户平台 [merchant.su46proj.site/merchant](https://merchant.su46proj.site/merchant/) · 系统管理 [admin.su46proj.site](https://admin.su46proj.site/)
+- **Android**：已下线且不再维护，安装包不再分发；下线原因、服务器侧删了什么、如何恢复见 [`android/RETIRED.md`](./android/RETIRED.md)
 - **后端服务与部署**：[mini-pay-ai-backend](https://github.com/su4-6/mini-pay-ai-backend)
 
 演示账号密码统一为 `MiniPay@123456`：运营 `13800138000`、商户 `13900000009`、系统管理 `13800138002`；
-App 用任意演示手机号 + 短信验证码 `123456`。演示环境数据是构造的，请不要填写真实个人信息。
+消费者端（H5 与 Android）用任意演示手机号 + 短信验证码 `123456`。演示环境数据是构造的，请不要填写真实个人信息。
 
 ## 界面一览
 

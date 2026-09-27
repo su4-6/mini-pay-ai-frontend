@@ -7,21 +7,25 @@
 - 当前 P0 是注册/登录、账户、钱包、转账、付款确认、账单、AI Talk 与运营/商户支付后台；前端不得擅自把原型占位当作已完成业务。
 - 外卖商家、菜单、购物车、履约、外卖订单与外卖授权的实际集成均为 P1。不得在 MiniPay 中重建这些业务或复制第三方品牌资产。
 - Android App 使用身份、账户、转账单与账单的后端事实来源；同一业务状态不得在端侧重复定义。
-- Android 只允许以受控 WebView 承载未来的 UniApp 外卖 H5，付款页面始终由 Android 原生实现。
+- **线上 C 端是消费者 H5（`apps/consumer-h5`，入口 `app.su46proj.site`）。Android 端已下线、仅保留源码，不再发布、不再修缺陷**，见 [`../android/RETIRED.md`](../android/RETIRED.md)。
+- 消费者 H5 的转账与付款**走同一个 `prepare → authenticate → confirm` 后端流程**，由用户明确确认；差别只是承载端从原生页面换成 Web 页面，"资金正确性以后端为准"这条不变。
+- 消费者 H5 不得持有 access/refresh token：token 只存在 `consumer-bff` 的 Redis 会话里，浏览器只有 httpOnly 会话 Cookie。支付密码只在提交瞬间用于换取一次性授权令牌，不得落任何端侧持久化。
 
 ## 2. 目录、依赖与架构
 
 ```text
 apps/                 可独立构建的产品应用
+  consumer-h5/        消费者 H5（线上 C 端）React + Umi + Ant Design Mobile
   ops-web/            运营端 React + Umi + Ant Design
   merchant-web/       商户端 React + Umi + Ant Design
+  admin-web/          系统管理端 React + Umi + Ant Design
 packages/             不含业务页面的共享能力
   design-tokens/      颜色、间距、字体等设计令牌
   api-contracts/      OpenAPI 派生或手工维护的版本化契约
   api-client/         统一请求、错误与请求标识处理
   shared/             无副作用的公共工具
   ui-desktop|mobile/  可复用的纯展示组件
-android/              Kotlin + Jetpack Compose 原生容器
+android/              Kotlin + Jetpack Compose 原生容器（已下线，仅保留源码）
 docs/                 契约、规范与架构决策文档
 ```
 
@@ -43,10 +47,10 @@ docs/                 契约、规范与架构决策文档
 
 - 金额在前端仅作展示和输入校验；不得使用浮点数计算金额。以服务端返回的“分”为准，前端不可篡改权威金额。
 - 支付密码、令牌、确认令牌、完整身份证明和敏感账户信息不得写入日志、埋点、Query 缓存、Zustand、浏览器持久化或 AI 上下文。
-- AI Talk 只能请求已登记的受控工具；所有转账和付款必须落入 `prepare → authenticate → confirm` 的原生/后端流程，并由用户明确确认。
+- AI Talk 只能请求已登记的受控工具；所有转账和付款必须落入 `prepare → authenticate → confirm` 的后端流程，并由用户明确确认。**米灵由独立的 `miling-service` 提供，它只能调用只读白名单接口，不得代替用户发起任何资金操作**——需要转账时只给出建议，由用户在转账页确认。
 - 错误提示面向用户时使用安全、可行动的文案；诊断信息使用 `requestId`/`traceId` 关联，不能暴露堆栈、令牌或内部地址。
 
-## 5. Android 与 Food WebView 规范
+## 5. Android 与 Food WebView 规范（Android 已下线，本节仅对保留源码生效）
 
 - WebView 默认不加载任何远程页面。只有配置精确的 HTTPS Origin、完成后端授权契约并通过安全评审后才允许启用。
 - 禁止 `addJavascriptInterface`、混合内容、文件访问和任意跳转；导航、重定向及桥接消息均必须验证精确 Origin。

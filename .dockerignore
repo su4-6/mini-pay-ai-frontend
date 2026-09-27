@@ -7,6 +7,10 @@ node_modules
 **/.umi
 **/.umi-production
 **/dist
+# 各端构建产物按需放行（否则 COPY apps/<app>/dist/ 会报 not found）：
+# 消费者 H5 已取代 Android App 成为线上 C 端，必须能像三个控制台一样直接打包。
+!apps/consumer-h5/dist
+!apps/consumer-h5/dist/**
 !apps/merchant-web/dist
 !apps/merchant-web/dist/**
 !apps/ops-web/dist

@@ -1,5 +1,11 @@
 # Android 构建与本地服务连接
 
+> ⚠️ **本端已从线上下线、不再维护**，安装包不再分发。线上 C 端已换成消费者 H5
+> （`apps/consumer-h5`，入口 https://app.su46proj.site）。下线原因、服务器侧删除了哪些
+> 支撑（`agent-service`、`commerce-service`、yshop 中间件、coturn）以及如何恢复，
+> 见 [`RETIRED.md`](./RETIRED.md)。下面的内容是**保留给本地调试**的，请先按该文档
+> 确认所需后端已在本地起齐。
+
 调试包的服务地址可在本机 `local.properties` 中配置；该文件不应提交，也不要写入账号、令牌或其他凭据。
 
 ```properties
@@ -69,14 +75,11 @@ $env:ANDROID_HOME = "<Android SDK>"
 4. 天气/POI 搜索依赖同一把 Key 的「Android 平台」授权；搜索失败不会让定位一起失败
    （代码里天气失败会降级为只显示城市）。
 
-当前线上包：`versionName 0.1.7` / `versionCode 8`（本版换用新的高德 Android Key，
-该 Key 绑定发布签名 SHA-1 `917B49F1…4B29` 与包名 `com.minipay.mobile`）。
-
-- 下载（国内 CDN，快）：`https://dl.su46proj.site/downloads/minipay-latest.apk`
-- 回退地址（R2 直连）：`https://download.su46proj.site/downloads/minipay-latest.apk`
-- 发布后核对（两个入口都应一致）：40,252,600 B、MD5 `3706a61367b16fe2b67f31d843fc5900`、
-  `aapt2 dump badging` 显示 `versionCode 8 / versionName 0.1.7`、清单里高德 Key 为新 Key。
-- ⚠️ 换包后必须刷新腾讯云 CDN 缓存：`node _codex_digest/accept/tencent-cdn.mjs purge https://dl.su46proj.site/downloads/minipay-latest.apk`
+**线上包已停止分发**（Android 端下线）。下面的信息仅作为历史记录保留：`versionName 0.1.7` /
+`versionCode 8`，包大小 40,252,600 B、MD5 `3706a61367b16fe2b67f31d843fc5900`。
+原来的两个下载入口（腾讯云 CDN `dl.su46proj.site` 与 R2 直连 `download.su46proj.site`）
+已在本次下线中移除，**不要**再把这两个地址写进页面或文档；如需临时恢复分发，
+按 [`RETIRED.md`](./RETIRED.md) 第 2 节逐项恢复。
 
 > Key 值不进版本库：本地放在 `C:\minipay-keys\amap-android-key.txt`，打包脚本
 > （工作区 `_codex_digest/accept/build-apk.ps1`）优先从这里读，其次读环境变量
