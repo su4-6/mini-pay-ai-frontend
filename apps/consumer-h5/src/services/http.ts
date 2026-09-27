@@ -165,8 +165,13 @@ export function toProblemError(error: unknown, fallbackRequestId: string): ApiPr
 /** 纯传输：只补 `X-Request-Id` / `Accept` / Cookie，不做 CSRF 注入。 */
 async function transport(url: string, options: ConsumerRequestOptions, requestId: string): Promise<TransportResult> {
   try {
+    // ⚠️ 必须显式给出 method：调用方（如会话查询）常常省略，而底层请求库会在
+    // `method.toUpperCase()` 上直接抛 `Cannot read properties of undefined` ——
+    // 2026-09-27 实测：这个异常被归一化成「网络不可用」，表现为 H5 进不去（GET 全废）。
+    const method = (options.method ?? 'GET').toUpperCase() as NonNullable<ConsumerRequestOptions['method']>;
     const response = await request(url, {
       ...options,
+      method,
       timeout: options.timeout ?? DEFAULT_TIMEOUT_MS,
       withCredentials: true,
       getResponse: true,
@@ -182,6 +187,11 @@ async function transport(url: string, options: ConsumerRequestOptions, requestId
       requestId: readResponseRequestId(response.headers, requestId)
     };
   } catch (error) {
+    // 诊断用：把底层真实异常打到控制台（只含 URL 与错误本身，不含任何凭据）。
+    // 否则 transport 的所有失败都会被归一化成「网络不可用」，线上极难定位。
+    if (typeof console !== 'undefined') {
+      console.error('[transport-failed]', url, error);
+    }
     const problem = toProblemError(error, requestId);
     if (problem.problem.status === 401) notifyUnauthorized();
     throw problem;

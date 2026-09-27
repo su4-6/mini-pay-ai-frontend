@@ -236,3 +236,19 @@ pnpm --filter @minipay/consumer-h5 test
     `!apps/consumer-h5/dist/**`，现在可以直接
     `docker build -f docker/k3s-web.Dockerfile --build-arg APP=consumer-h5 -t suqihang/consumer-web:<tag> .`
     （记得加 `--provenance=false --sbom=false`，否则 k3s 导入后报 `image can't be pulled`）。
+12. **⚠️ 2026-09-27 线上「H5 打不开」事故（两个根因，均已修复 + 测试锁定）**：
+    - **白屏**：`src/app.tsx` 里 `export const queryClient = ...`。Umi 会把 `app.tsx` 的**每个导出**
+      当运行时插件注册，白名单（生成的 `.umi/core/plugin.ts` 的 `getValidKeys()`）里没有 `queryClient`，
+      `pluginManager.register()` 的断言直接抛 `register failed, invalid key queryClient .`，
+      应用启动中断 → 整页白屏。修法：改为模块私有（页面里用 `useQueryClient()`）。
+    - **所有 GET 失败（界面显示「网络不可用」）**：`app.tsx` 的 `request.requestInterceptors` 用了
+      umi-request 的 `[url, options]` 元组写法，而生成的 `.umi/plugin-request/request.ts` 底层是 **axios**：
+      它会解构成 `{ url: newUrl, options }` 再 `{ ...options, url }`，**丢掉 `method`**，axios 随即在
+      `config.method.toUpperCase()` 抛 `Cannot read properties of undefined`，被 `services/http.ts`
+      归一化成 `NETWORK_UNAVAILABLE`（连会话查询都挂）。修法：删掉该拦截器（`X-Request-Id`/`Accept`/
+      `withCredentials` 已在 transport 逐请求设置），并让 transport 显式 `method ?? 'GET'`。
+    - **闸门**：`src/app.test.ts` 断言「导出名 ⊆ Umi 白名单」且「不得出现 `requestInterceptors:` 配置项」。
+    - **教训**：此前验收只查「index 可访问 + 资源 200 + API 流程」，**没有浏览器渲染断言**，
+      所以白屏能长期存在而无人发现。现已用 Playwright（`channel: 'msedge'`，不必下载浏览器）
+      跑真实登录 + 渲染冒烟；做法记录在 `deploy/k3s/README.md`。
+    - **线上现状**：`consumer-web` 以 digest 部署修复版，浏览器实测「登录 → 首页」正常、零控制台错误。
