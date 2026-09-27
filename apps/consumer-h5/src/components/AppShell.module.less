@@ -1,0 +1,99 @@
+.shell {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  max-width: 100%;
+  background: var(--mp-shell-bg);
+}
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  border-bottom: 1px solid var(--mp-border);
+  background: #fff;
+}
+
+.navbar {
+  --adm-color-text: var(--mp-ink);
+  min-height: var(--mp-touch-target);
+}
+
+.title {
+  font-size: 17px;
+  font-weight: 600;
+}
+
+.subtitle {
+  padding: 0 12px 10px;
+  color: #667085;
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+.main {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 12px;
+  padding-bottom: 24px;
+}
+
+.mainFlush {
+  padding: 0;
+}
+
+.mainWithTabBar {
+  /* 底部导航 + iOS 安全区，避免内容被遮挡 */
+  padding-bottom: calc(64px + env(safe-area-inset-bottom));
+}
+
+.tabbar {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 30;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  border-top: 1px solid var(--mp-border);
+  background: #fff;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+.tabItem {
+  display: flex;
+  min-height: var(--mp-touch-target);
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2px;
+  padding: 6px 4px;
+  color: #667085;
+  font-size: 11px;
+  text-decoration: none;
+}
+
+.tabItemActive {
+  color: var(--mp-primary);
+}
+
+.tabIcon {
+  font-size: 22px;
+}
+
+@media (min-width: 768px) {
+  .shell {
+    max-width: 768px;
+    margin: 0 auto;
+    border-right: 1px solid var(--mp-border);
+    border-left: 1px solid var(--mp-border);
+  }
+
+  .tabbar {
+    right: auto;
+    left: 50%;
+    width: 768px;
+    transform: translateX(-50%);
+  }
+}

@@ -1,0 +1,224 @@
+.workspace {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 10px 12px 0;
+}
+
+/* ── 会话抽屉 ── */
+.drawer {
+  display: flex;
+  width: 78vw;
+  max-width: 320px;
+  height: 100%;
+  flex-direction: column;
+  background: #fff;
+}
+
+.drawerHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 12px;
+  border-bottom: 1px solid var(--mp-border);
+}
+
+.drawerTitle {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.drawerBody {
+  flex: 1;
+  overflow-y: auto;
+  padding: 4px 0;
+}
+
+.conversationItem {
+  display: flex;
+  width: 100%;
+  min-height: var(--mp-touch-target);
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 10px 12px;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+  color: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.conversationItemActive {
+  background: var(--mp-primary-soft);
+}
+
+.conversationTitle {
+  width: 100%;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.conversationMeta {
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+/* ── 消息区 ── */
+.messageList {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-bottom: 8px;
+}
+
+.bubbleRow {
+  display: flex;
+  gap: 8px;
+}
+
+.bubbleRowUser {
+  justify-content: flex-end;
+}
+
+.bubble {
+  max-width: 82%;
+  padding: 10px 12px;
+  border-radius: 14px;
+  font-size: 14px;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.bubbleAssistant {
+  border: 1px solid var(--mp-border);
+  border-top-left-radius: 4px;
+  background: #fff;
+}
+
+.bubbleUser {
+  border-top-right-radius: 4px;
+  background: var(--mp-primary);
+  color: #fff;
+}
+
+.bubbleRole {
+  margin-bottom: 4px;
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+.streamingCursor {
+  display: inline-block;
+  width: 6px;
+  height: 14px;
+  margin-left: 2px;
+  vertical-align: -2px;
+  background: var(--mp-primary);
+  animation: blink 1s steps(2, start) infinite;
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+
+.emptyHero {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 18px 16px;
+  border: 1px solid var(--mp-border);
+  border-radius: var(--mp-card-radius);
+  background: #fff;
+}
+
+.emptyTitle {
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.suggestions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.suggestionChip {
+  min-height: 34px;
+  padding: 6px 12px;
+  border: 1px solid var(--mp-border);
+  border-radius: 999px;
+  background: #fff;
+  color: var(--mp-primary-deep);
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.streamStatus {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: #667085;
+  font-size: 12px;
+}
+
+/* ── 输入区 ── */
+.composer {
+  position: sticky;
+  bottom: calc(64px + env(safe-area-inset-bottom));
+  z-index: 10;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 8px;
+  padding: 10px 12px;
+  border-top: 1px solid var(--mp-border);
+  background: #fff;
+}
+
+.composerRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.textarea {
+  display: block;
+  width: 100%;
+  min-height: 44px;
+  max-height: 120px;
+  padding: 10px 12px;
+  border: 1px solid var(--mp-border);
+  border-radius: var(--mp-control-radius);
+  background: #fff;
+  color: var(--mp-ink);
+  font-family: inherit;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: none;
+}
+
+.textarea:disabled {
+  background: #f8fafc;
+  color: #98a2b3;
+}
+
+.composerActions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
+.composerHint {
+  color: #98a2b3;
+  font-size: 11px;
+}

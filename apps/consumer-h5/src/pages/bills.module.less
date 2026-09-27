@@ -1,0 +1,116 @@
+.summaryCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 14px 16px;
+  border: 1px solid var(--mp-border);
+  border-radius: var(--mp-card-radius);
+  background: #fff;
+}
+
+.summaryLabel {
+  color: #667085;
+  font-size: 12px;
+}
+
+.summaryValue {
+  margin-top: 4px;
+  font-size: 15px;
+  font-weight: 600;
+}
+
+.filterRow {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+  overflow-x: auto;
+}
+
+.filterChip {
+  flex: none;
+  min-height: var(--mp-touch-target);
+  padding: 6px 14px;
+  border: 1px solid var(--mp-border);
+  border-radius: 999px;
+  background: #fff;
+  color: #475467;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.filterChipActive {
+  border-color: var(--mp-primary);
+  background: var(--mp-primary-soft);
+  color: var(--mp-primary-deep);
+  font-weight: 600;
+}
+
+.billItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 0;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.billItem:last-child {
+  border-bottom: none;
+}
+
+.billMain {
+  display: block;
+  min-width: 0;
+}
+
+.billTitle {
+  display: block;
+  overflow: hidden;
+  font-size: 14px;
+  font-weight: 500;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.billMeta {
+  display: block;
+  margin-top: 3px;
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+.billSide {
+  display: block;
+  flex: none;
+  text-align: right;
+}
+
+.billBalance {
+  display: block;
+  margin-top: 3px;
+  color: #98a2b3;
+  font-size: 11px;
+}
+
+/* 列表项整体可点击时的按钮外壳（转账记录等） */
+.billButton {
+  width: 100%;
+  min-height: var(--mp-touch-target);
+  padding: 12px 0;
+  border: none;
+  border-bottom: 1px solid #f1f5f9;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.loadingRow {
+  padding: 12px 0;
+  color: #98a2b3;
+  font-size: 12px;
+  text-align: center;
+}

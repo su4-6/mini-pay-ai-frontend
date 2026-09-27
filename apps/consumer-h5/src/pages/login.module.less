@@ -1,0 +1,97 @@
+.page {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  gap: 16px;
+  padding: 28px 20px calc(28px + env(safe-area-inset-bottom));
+  background: linear-gradient(180deg, #eaf2ff 0%, var(--mp-shell-bg) 42%);
+}
+
+.brand {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.brandTitle {
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.brandSubtitle {
+  color: #475467;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 18px 16px;
+  border: 1px solid var(--mp-border);
+  border-radius: var(--mp-card-radius);
+  background: #fff;
+  box-shadow: var(--mp-card-shadow);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.fieldLabel {
+  color: #475467;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.codeRow {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+}
+
+.codeRow > *:first-child {
+  min-width: 0;
+  flex: 1;
+}
+
+.codeButton {
+  flex: none;
+  min-width: 116px;
+  min-height: var(--mp-touch-target);
+}
+
+.agreement {
+  display: flex;
+  align-items: flex-start;
+  gap: 6px;
+  color: #475467;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.agreementLink {
+  color: var(--mp-primary);
+  text-decoration: none;
+}
+
+.hint {
+  padding: 8px 10px;
+  border-radius: var(--mp-control-radius);
+  background: var(--mp-primary-soft);
+  color: var(--mp-primary-deep);
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.footer {
+  margin-top: auto;
+  color: #98a2b3;
+  font-size: 11px;
+  line-height: 1.6;
+  text-align: center;
+}
