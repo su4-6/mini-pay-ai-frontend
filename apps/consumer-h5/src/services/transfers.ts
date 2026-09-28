@@ -1,6 +1,6 @@
 import { toApiProblemError } from '@minipay/api-client';
 import type { PreparedTransfer, TransferConfirmation, TransferDetail, TransferPage } from '../types/consumer';
-import { asRecord, readFen, readPage, readString } from './parsers';
+import { asArray, asRecord, readFen, readPage, readString } from './parsers';
 import { buildQuery, httpRequest } from './http';
 import { normalizeTransferStatus } from '../utils/transfer-status';
 
@@ -42,15 +42,18 @@ function parseIntent(raw: unknown, input: PrepareTransferInput): PreparedTransfe
 
 function parseTransferDetail(raw: unknown): TransferDetail {
   const record = asRecord(raw);
+  const receiverUserId = readString(record, 'receiverUserId');
   return {
     transferNo: readString(record, 'transferNo', 'transferId') ?? '',
     status: normalizeTransferStatus(readString(record, 'status')),
     amountFen: readFen(record, 'amountFen', 'amountCent') ?? 0,
-    payeeMasked: readString(record, 'payeeMasked', 'receiverMasked'),
+    payeeMasked:
+      readString(record, 'payeeMasked', 'receiverMasked') ??
+      (receiverUserId ? `用户 ${receiverUserId.slice(0, 8)}…` : undefined),
     payerMasked: readString(record, 'payerMasked'),
     remark: readString(record, 'remark'),
     failureCode: readString(record, 'failureCode'),
-    createdAt: readString(record, 'createdAt'),
+    createdAt: readString(record, 'createdAt', 'updatedAt'),
     updatedAt: readString(record, 'updatedAt')
   };
 }
@@ -115,7 +118,8 @@ export async function fetchTransferPage(cursor: string | null, limit = 20): Prom
     `/api/v1/transfers${buildQuery({ cursor: cursor ?? undefined, limit })}`,
     { method: 'GET' }
   );
-  const page = readPage(raw);
+  // Payment 的全量转账查询直接返回数组；Wallet 的按交易对手查询仍返回分页信封。
+  const page = Array.isArray(raw) ? { items: asArray(raw) } : readPage(raw);
   return { items: page.items.map(parseTransferDetail), nextCursor: page.nextCursor };
 }
 

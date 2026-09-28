@@ -24,7 +24,7 @@ vi.mock('./http', () => ({
   }
 }));
 
-import { confirmTransfer, prepareTransfer } from './transfers';
+import { confirmTransfer, fetchTransferPage, prepareTransfer } from './transfers';
 
 interface RecordedCall {
   url: string;
@@ -107,5 +107,46 @@ describe('转账 confirm 的授权金额来源', () => {
   it('缺少 transferNo 的确认响应被视为异常', async () => {
     httpRequestMock.mockResolvedValueOnce({ status: 'PROCESSING' });
     await expect(confirmTransfer('intent-6', '135790', 100)).rejects.toThrow(/transferNo/);
+  });
+});
+
+describe('转账记录列表契约', () => {
+  it('读取 Payment 直接返回的数组并使用 transferId 进入详情', async () => {
+    httpRequestMock.mockResolvedValueOnce([
+      {
+        transferId: '019d-transfer-1',
+        receiverUserId: '019d-receiver-12345678',
+        amountCent: 100,
+        status: 'SUCCEEDED',
+        updatedAt: '2026-09-28T15:00:00Z'
+      }
+    ]);
+
+    await expect(fetchTransferPage(null, 20)).resolves.toEqual({
+      items: [
+        expect.objectContaining({
+          transferNo: '019d-transfer-1',
+          payeeMasked: '用户 019d-rec…',
+          amountFen: 100,
+          status: 'SUCCESS',
+          createdAt: '2026-09-28T15:00:00Z'
+        })
+      ],
+      nextCursor: undefined
+    });
+    expect(callAt(0).url).toBe('/api/v1/transfers?limit=20');
+  });
+
+  it('仍兼容 Wallet 的分页信封', async () => {
+    httpRequestMock.mockResolvedValueOnce({
+      items: [{ transferNo: 'TR-2', amountFen: 200, status: 'PROCESSING' }],
+      page: 1,
+      size: 20,
+      total: 1
+    });
+
+    await expect(fetchTransferPage('1', 20)).resolves.toMatchObject({
+      items: [expect.objectContaining({ transferNo: 'TR-2', amountFen: 200 })]
+    });
   });
 });
