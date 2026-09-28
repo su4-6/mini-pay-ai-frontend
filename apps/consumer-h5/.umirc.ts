@@ -31,8 +31,10 @@ export default defineConfig({
     '/api': { target: bffProxyTarget, changeOrigin: true }
   },
   routes: [
-    { path: '/', component: 'chat' },
+    { path: '/', component: 'home' },
+    { path: '/miling', component: 'chat' },
     { path: '/login', component: 'login' },
+    { path: '/onboarding', component: 'onboarding' },
     { path: '/wallet', component: 'wallet' },
     { path: '/bills', component: 'bills' },
     { path: '/collect', component: 'collect' },
@@ -42,6 +44,13 @@ export default defineConfig({
     { path: '/transfers', component: 'transfers' },
     { path: '/transfers/detail', component: 'transfer-detail' },
     { path: '/pay-password', component: 'pay-password' },
+    { path: '/real-name', component: 'real-name' },
+    { path: '/bank-cards', component: 'bank-cards' },
+    { path: '/funding', component: 'funding' },
+    { path: '/profile', component: 'profile' },
+    { path: '/security', component: 'security' },
+    { path: '/legal/service', component: 'legal-service' },
+    { path: '/legal/privacy', component: 'legal-privacy' },
     { path: '/me', component: 'me' },
     { path: '*', redirect: '/' }
   ]

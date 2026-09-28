@@ -13,6 +13,11 @@ export const queryKeys = {
 
   collectionCode: ['collection-code'] as const,
   bankCards: ['bank-cards'] as const,
+  profile: ['profile'] as const,
+  capabilities: ['capabilities'] as const,
+  accountSecurity: ['account-security'] as const,
+  fundingRoot: ['funding-orders'] as const,
+  fundingOrders: (type: 'RECHARGE' | 'WITHDRAWAL') => ['funding-orders', type] as const,
 
   /** 转账单家族前缀。 */
   transfersRoot: ['transfers'] as const,

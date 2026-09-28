@@ -46,7 +46,9 @@ type Step = 'form' | 'confirm';
 function PayWorkspace() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { payPasswordSet } = useSession();
+  const { profile, payPasswordSet } = useSession();
+  const realNameVerified = profile?.realNameVerified ?? false;
+  const fundsReady = realNameVerified && payPasswordSet;
   const now = useNow(1_000);
 
   const [step, setStep] = useState<Step>('form');
@@ -284,7 +286,14 @@ function PayWorkspace() {
             {formError ? <InlineNotice tone="warning">{formError}</InlineNotice> : null}
             {prepareMutation.isError ? <ProblemNotice error={prepareMutation.error} /> : null}
 
-            {!payPasswordSet ? (
+            {!realNameVerified ? (
+              <InlineNotice tone="warning">
+                请先完成沙箱实名认证，再设置支付密码后使用付款。
+                <Button size="mini" color="primary" fill="none" onClick={() => navigate(ROUTES.realName)}>
+                  去实名认证
+                </Button>
+              </InlineNotice>
+            ) : !payPasswordSet ? (
               <InlineNotice tone="warning">
                 尚未设置支付密码，无法完成付款。
                 <Button size="mini" color="primary" fill="none" onClick={() => navigate(ROUTES.payPassword)}>
@@ -298,7 +307,7 @@ function PayWorkspace() {
               color="primary"
               size="large"
               loading={prepareMutation.isPending}
-              disabled={!payPasswordSet || !merchantReady}
+              disabled={!fundsReady || !merchantReady}
               onClick={handlePrepare}
             >
               下一步：确认付款

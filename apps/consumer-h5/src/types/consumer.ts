@@ -90,6 +90,66 @@ export interface BankCard {
   cardType?: string;
 }
 
+/** Consumer Identity profile, never contains a full mobile or identity number. */
+export interface ConsumerProfileDetail {
+  userId: string;
+  nickname: string;
+  miniPayNo: string;
+  avatarUrl?: string;
+  version: number;
+  legalNameMasked?: string;
+}
+
+export interface ConsumerCapabilities {
+  onboardingCompleted: boolean;
+  realNameStatus: string;
+  realNameVerified: boolean;
+  payPasswordSet: boolean;
+}
+
+export interface AccountSecurityOverview {
+  maskedMobile: string;
+  maskedEmail?: string;
+  paymentPasswordSet: boolean;
+}
+
+export interface VerificationChallenge {
+  challengeId: string;
+  maskedTarget?: string;
+  expiresAt?: string;
+  demoCode?: string;
+}
+
+export interface RealNameVerification {
+  verificationId: string;
+  status: string;
+  legalNameMasked?: string;
+  idNumberMasked?: string;
+  failureCode?: string;
+}
+
+export interface BankBalance {
+  availableFen: number;
+  currency: string;
+  updatedAt?: string;
+}
+
+export interface FundingOrder {
+  orderId: string;
+  orderNo?: string;
+  type: 'RECHARGE' | 'WITHDRAWAL';
+  bankCardId: string;
+  amountFen: number;
+  status: string;
+  failureCode?: string;
+  updatedAt?: string;
+}
+
+export interface FundingOrderPage {
+  items: FundingOrder[];
+  nextCursor?: string;
+}
+
 /** `POST /api/v1/transfers/prepare` → 转账意图 */
 export interface TransferIntent {
   transferIntentId: string;

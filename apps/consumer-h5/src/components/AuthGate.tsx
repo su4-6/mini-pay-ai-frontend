@@ -15,18 +15,26 @@ export function AuthGate({ children }: PropsWithChildren) {
   const navigate = useNavigate();
   const location = useLocation();
   const query = useSessionQuery();
-  const isAuthenticated = isAuthenticatedSession(query.data);
+  const authenticatedSession = isAuthenticatedSession(query.data) ? query.data : undefined;
+  const isAuthenticated = authenticatedSession !== undefined;
+  const onboardingRequired = authenticatedSession?.onboardingRequired ?? false;
 
   useEffect(() => {
-    if (query.isLoading || query.isError || isAuthenticated) return;
+    if (query.isLoading || query.isError) return;
+    if (isAuthenticated) {
+      if (onboardingRequired && location.pathname !== ROUTES.onboarding) {
+        navigate(ROUTES.onboarding, { replace: true });
+      }
+      return;
+    }
     const current = `${location.pathname}${location.search ?? ''}`;
     navigate(withRedirect(ROUTES.login, current), { replace: true });
-  }, [isAuthenticated, location.pathname, location.search, navigate, query.isError, query.isLoading]);
+  }, [isAuthenticated, location.pathname, location.search, navigate, onboardingRequired, query.isError, query.isLoading]);
 
   if (query.isError) {
     return <AsyncState error={query.error} onRetry={() => void query.refetch()} />;
   }
-  if (!isAuthenticated) {
+  if (!isAuthenticated || (onboardingRequired && location.pathname !== ROUTES.onboarding)) {
     return <AsyncState loading loadingText="正在校验登录状态…" />;
   }
   return <>{children}</>;

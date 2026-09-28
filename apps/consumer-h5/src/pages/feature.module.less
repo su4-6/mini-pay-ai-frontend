@@ -1,0 +1,26 @@
+.page { display:flex; flex-direction:column; gap:14px; }
+.intro { padding:18px; border:1px solid #dbe6f5; border-radius:20px; background:linear-gradient(140deg,#f5f9ff,#fff); }
+.intro h1 { font-size:22px; line-height:1.35; }
+.intro p { margin-top:7px; color:#69778a; font-size:12px; line-height:1.7; }
+.card { padding:18px 16px; border:1px solid #dce5f1; border-radius:20px; background:#fff; box-shadow:0 8px 26px rgb(31 63 111 / 7%); }
+.card h2 { margin-bottom:14px; font-size:16px; }
+.field { display:flex; flex-direction:column; gap:7px; margin-bottom:15px; }
+.field label { color:#526174; font-size:12px; font-weight:600; }
+.hint { color:#8a96a6; font-size:11px; line-height:1.6; }
+.actions { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
+.avatar { display:grid; width:68px; height:68px; place-items:center; border-radius:22px; background:linear-gradient(145deg,#0b6bff,#2e55bd); color:#fff; font-size:26px; font-weight:750; box-shadow:0 10px 22px rgb(18 91 210 / 22%); }
+.profileHead { display:flex; align-items:center; gap:15px; }
+.profileHead h2 { margin:0; font-size:18px; }.profileHead p{margin-top:4px;color:#8793a4;font-size:12px}
+.statusRow { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:12px 0; border-bottom:1px solid #edf1f6; }
+.statusRow:last-child { border-bottom:0; }.statusRow span{color:#69778a;font-size:12px}.statusRow strong{font-size:13px;text-align:right}
+.upload { display:block; padding:18px; border:1px dashed #9bb9e8; border-radius:16px; background:#f5f9ff; color:#275ea8; text-align:center; cursor:pointer; }
+.upload input { position:absolute; width:1px; height:1px; opacity:0; }
+.preview { width:100%; max-height:240px; margin-top:10px; border-radius:14px; object-fit:contain; background:#f3f6fa; }
+.success { padding:16px; border:1px solid #bce7cd; border-radius:16px; background:#effbf4; color:#16764a; line-height:1.7; }
+.danger { color:#b42318; }
+.tabs { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; padding:5px; border-radius:14px; background:#edf2f8; }
+.tab { min-height:40px; border:0; border-radius:11px; background:transparent; color:#66758a; }.tabActive{background:#fff;color:#1761c2;font-weight:650;box-shadow:0 3px 10px rgb(31 63 111 / 10%)}
+.bankCard { padding:17px; border-radius:18px; background:linear-gradient(135deg,#175ec9,#173f91); color:#fff; box-shadow:0 10px 24px rgb(23 75 155 / 22%); }
+.bankTop { display:flex; align-items:center; justify-content:space-between; }.bankTop strong{font-size:16px}.bankTop span{font-size:11px;opacity:.76}.cardNo{margin-top:26px;font-size:20px;font-weight:650;letter-spacing:1.2px}.bankActions{display:flex;gap:8px;margin-top:16px}.bankActions button{flex:1}
+.empty { padding:28px 16px; border:1px dashed #cad5e4; border-radius:18px; color:#8592a3; text-align:center; line-height:1.7; }
+.amountResult { margin:10px 0; color:#1761c2; font-size:26px; font-weight:750; }

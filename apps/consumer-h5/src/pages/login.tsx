@@ -1,4 +1,4 @@
-import { useLocation, useNavigate } from '@umijs/max';
+import { Link, useLocation, useNavigate } from '@umijs/max';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Checkbox, Input } from 'antd-mobile';
 import dayjs from 'dayjs';
@@ -26,7 +26,7 @@ export default function LoginPage() {
   const sessionQuery = useSessionQuery();
   const now = useNow(1_000);
 
-  const redirect = sanitizeRedirect(readSearchParam(location.search ?? '', 'redirect'), ROUTES.chat);
+  const redirect = sanitizeRedirect(readSearchParam(location.search ?? '', 'redirect'), ROUTES.home);
 
   const [mobile, setMobile] = useState('');
   const [code, setCode] = useState('');
@@ -43,7 +43,7 @@ export default function LoginPage() {
   // 已登录用户直接回跳，避免重复登录。
   useEffect(() => {
     if (sessionQuery.data?.authenticated) {
-      navigate(redirect, { replace: true });
+      navigate(sessionQuery.data.onboardingRequired ? ROUTES.onboarding : redirect, { replace: true });
     }
   }, [navigate, redirect, sessionQuery.data]);
 
@@ -65,7 +65,7 @@ export default function LoginPage() {
       // 登录成功后会话轮换：这里精确写入并失效会话查询（CSRF 已在 service 内清空）。
       queryClient.setQueryData(queryKeys.session, profile);
       void queryClient.invalidateQueries({ queryKey: queryKeys.session });
-      navigate(redirect, { replace: true });
+      navigate(profile.onboardingRequired ? ROUTES.onboarding : redirect, { replace: true });
     }
   });
 
@@ -173,9 +173,13 @@ export default function LoginPage() {
           <Checkbox checked={agreed} onChange={setAgreed} aria-label="同意服务协议与隐私政策" />
           <span>
             我已阅读并同意
-            {/* 协议内容为占位，不提供外链跳转 */}
-            <span className={styles.agreementLink}>《MiniPay 服务协议》</span>与
-            <span className={styles.agreementLink}>《隐私政策》</span>
+            <Link className={styles.agreementLink} to={ROUTES.serviceNotice}>
+              《演示服务说明》
+            </Link>
+            与
+            <Link className={styles.agreementLink} to={ROUTES.privacyNotice}>
+              《隐私说明》
+            </Link>
           </span>
         </div>
 
@@ -189,7 +193,7 @@ export default function LoginPage() {
       </section>
 
       <p className={styles.footer}>
-        未注册的手机号验证通过后将自动创建 MiniPay 账户；本演示环境不提供真实开户与实名。
+        MiniPay 是沙箱演示系统，不连接真实银行账户；未注册手机号验证后会创建演示账户。
       </p>
     </div>
   );

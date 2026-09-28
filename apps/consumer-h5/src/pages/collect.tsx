@@ -109,8 +109,7 @@ function CollectWorkspace() {
         </Card>
 
         <InlineNotice>
-          H5 端不提供相机扫码与付款码流程：付款请让对方出示其收款码内容，
-          或直接在「转账」页输入对方手机号 / MiniPay 号完成转账。
+          付款页会优先调用浏览器相机识别商户收款码；设备不支持或拒绝相机权限时，也可以手动粘贴收款码内容。
         </InlineNotice>
       </div>
     </AppShell>

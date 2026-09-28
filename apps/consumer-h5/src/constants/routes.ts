@@ -1,6 +1,8 @@
 export const ROUTES = {
-  chat: '/',
+  home: '/',
+  chat: '/miling',
   login: '/login',
+  onboarding: '/onboarding',
   wallet: '/wallet',
   bills: '/bills',
   collect: '/collect',
@@ -10,6 +12,13 @@ export const ROUTES = {
   transfers: '/transfers',
   transferDetail: '/transfers/detail',
   payPassword: '/pay-password',
+  realName: '/real-name',
+  bankCards: '/bank-cards',
+  funding: '/funding',
+  profile: '/profile',
+  security: '/security',
+  serviceNotice: '/legal/service',
+  privacyNotice: '/legal/privacy',
   me: '/me'
 } as const;
 

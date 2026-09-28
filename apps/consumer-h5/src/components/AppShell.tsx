@@ -1,9 +1,9 @@
 import { Link, useLocation, useNavigate } from '@umijs/max';
 import { NavBar } from 'antd-mobile';
 import {
+  AppOutline,
+  BillOutline,
   MessageOutline,
-  PayCircleOutline,
-  ReceivePaymentOutline,
   UserOutline
 } from 'antd-mobile-icons';
 import type { PropsWithChildren, ReactNode } from 'react';
@@ -21,9 +21,9 @@ interface TabItem {
 }
 
 const TAB_ITEMS: TabItem[] = [
+  { path: ROUTES.home, label: '首页', Icon: AppOutline, exact: true },
   { path: ROUTES.chat, label: '米灵', Icon: MessageOutline, exact: true },
-  { path: ROUTES.wallet, label: '钱包', Icon: PayCircleOutline },
-  { path: ROUTES.collect, label: '收款', Icon: ReceivePaymentOutline },
+  { path: ROUTES.bills, label: '账单', Icon: BillOutline },
   { path: ROUTES.me, label: '我的', Icon: UserOutline }
 ];
 

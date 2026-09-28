@@ -35,7 +35,9 @@ type Step = 'form' | 'confirm';
 function TransferWorkspace() {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const { payPasswordSet } = useSession();
+  const { profile, payPasswordSet } = useSession();
+  const realNameVerified = profile?.realNameVerified ?? false;
+  const fundsReady = realNameVerified && payPasswordSet;
   const prepared = useTransferStore((state) => state.prepared);
   const setPrepared = useTransferStore((state) => state.setPrepared);
   const clearPrepared = useTransferStore((state) => state.clear);
@@ -214,7 +216,14 @@ function TransferWorkspace() {
             {amountError ? <InlineNotice tone="warning">{amountError}</InlineNotice> : null}
             {prepareMutation.isError ? <ProblemNotice error={prepareMutation.error} /> : null}
 
-            {!payPasswordSet ? (
+            {!realNameVerified ? (
+              <InlineNotice tone="warning">
+                请先完成沙箱实名认证，再设置支付密码后使用转账。
+                <Button size="mini" color="primary" fill="none" onClick={() => navigate(ROUTES.realName)}>
+                  去实名认证
+                </Button>
+              </InlineNotice>
+            ) : !payPasswordSet ? (
               <InlineNotice tone="warning">
                 尚未设置支付密码，无法完成转账。
                 <Button size="mini" color="primary" fill="none" onClick={() => navigate(ROUTES.payPassword)}>
@@ -228,7 +237,7 @@ function TransferWorkspace() {
               color="primary"
               size="large"
               loading={prepareMutation.isPending}
-              disabled={!payPasswordSet}
+              disabled={!fundsReady}
               onClick={handlePrepare}
             >
               下一步：确认转账

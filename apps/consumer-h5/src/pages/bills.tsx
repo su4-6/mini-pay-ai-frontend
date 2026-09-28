@@ -1,4 +1,5 @@
 import { useInfiniteQuery } from '@tanstack/react-query';
+import { Link } from '@umijs/max';
 import { InfiniteScroll } from 'antd-mobile';
 import { useMemo, useState } from 'react';
 import { AmountText } from '../components/AmountText';
@@ -6,6 +7,9 @@ import { AppShell } from '../components/AppShell';
 import { AsyncState } from '../components/AsyncState';
 import { AuthGate } from '../components/AuthGate';
 import { Card } from '../components/Card';
+import { InlineNotice } from '../components/InlineNotice';
+import { ROUTES } from '../constants/routes';
+import { useSession } from '../hooks/useSession';
 import { queryKeys } from '../query/keys';
 import { fetchBillPage } from '../services/wallet';
 import { describeFailureCode } from '../services/problem';
@@ -26,12 +30,15 @@ const FILTERS: Array<{ key: DirectionFilter; label: string }> = [
 
 function BillsWorkspace() {
   const [filter, setFilter] = useState<DirectionFilter>('ALL');
+  const { profile } = useSession();
+  const realNameVerified = profile?.realNameVerified ?? false;
 
   const query = useInfiniteQuery({
     queryKey: queryKeys.billInfinite,
     queryFn: ({ pageParam }) => fetchBillPage(pageParam, PAGE_SIZE),
     initialPageParam: null as string | null,
-    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined
+    getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+    enabled: realNameVerified
   });
 
   const bills = useMemo(() => query.data?.pages.flatMap((page) => page.items) ?? [], [query.data]);
@@ -47,6 +54,17 @@ function BillsWorkspace() {
   );
 
   const first = bills[0];
+
+  if (!realNameVerified) {
+    return (
+      <AppShell title="账单" subtitle="完成沙箱实名认证后可查看钱包账单" showTabBar>
+        <InlineNotice tone="warning">
+          当前钱包尚未开通。请先完成沙箱实名认证，再查看账单。
+          <Link to={ROUTES.realName}>去实名认证</Link>
+        </InlineNotice>
+      </AppShell>
+    );
+  }
 
   return (
     <AppShell title="账单" subtitle="只读分页，按服务端游标加载" backTo="/wallet">

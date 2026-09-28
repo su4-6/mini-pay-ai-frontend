@@ -17,8 +17,8 @@ import { useTransferStore } from '../stores/transfer-intent';
 import styles from './me.module.less';
 
 const REAL_NAME_STATUS_TEXT: Record<string, string> = {
-  UNVERIFIED: '未实名（本演示端不提供实名开户）',
-  PENDING: '实名审核中（本演示端不提供实名开户）',
+  UNVERIFIED: '未实名',
+  PENDING: '实名审核中',
   VERIFIED: '已实名',
   REJECTED: '实名未通过'
 };
@@ -65,10 +65,18 @@ function MeWorkspace() {
       </section>
 
       <Card title="账户与安全" tight>
-        <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.payPassword)}>
+        <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.profile)}>
           <span>
-            <span className={styles.entryLabel}>支付密码</span>
-            <span className={styles.entryHint}>用于转账等资金操作的服务端校验</span>
+            <span className={styles.entryLabel}>个人资料</span>
+            <span className={styles.entryHint}>修改昵称与查看账户标识</span>
+          </span>
+          <RightOutline aria-hidden />
+        </button>
+
+        <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.security)}>
+          <span>
+            <span className={styles.entryLabel}>账户安全</span>
+            <span className={styles.entryHint}>手机号与支付密码管理</span>
           </span>
           <span className={styles.entryValue}>
             {payPasswordSet ? '已设置' : '未设置'}
@@ -76,15 +84,16 @@ function MeWorkspace() {
           </span>
         </button>
 
-        <div className={styles.entry} aria-readonly="true">
+        <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.realName)}>
           <span>
             <span className={styles.entryLabel}>实名状态</span>
-            <span className={styles.entryHint}>演示环境不提供注册开户与实名认证</span>
+            <span className={styles.entryHint}>资金操作前需要完成沙箱实名认证</span>
           </span>
           <span className={styles.entryValue}>
             {REAL_NAME_STATUS_TEXT[profile?.realNameStatus ?? 'UNVERIFIED'] ?? profile?.realNameStatus ?? '--'}
+            <RightOutline aria-hidden />
           </span>
-        </div>
+        </button>
 
         <div className={styles.entry} aria-readonly="true">
           <span>
@@ -98,6 +107,14 @@ function MeWorkspace() {
       </Card>
 
       <Card title="常用入口" tight>
+        <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.bankCards)}>
+          <span className={styles.entryLabel}>我的银行卡</span>
+          <RightOutline aria-hidden />
+        </button>
+        <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.funding)}>
+          <span className={styles.entryLabel}>充值与提现</span>
+          <RightOutline aria-hidden />
+        </button>
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.wallet)}>
           <span className={styles.entryLabel}>钱包与账单</span>
           <RightOutline aria-hidden />
@@ -120,7 +137,7 @@ function MeWorkspace() {
 
       <div style={{ marginTop: 12 }}>
         <InlineNotice>
-          当前为 Android App 下线后的 H5 演示端：不包含注册开户 / 实名、扫码、点餐外卖、好友与群聊、语音通话与后台推送。
+          当前为沙箱 H5：支持钱包核心流程与沙箱实名，不连接真实银行；外卖、社交、群聊、语音和后台推送不在本期范围。
         </InlineNotice>
       </div>
     </AppShell>
