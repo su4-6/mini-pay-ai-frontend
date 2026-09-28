@@ -1,0 +1,40 @@
+.page {
+  display: grid;
+  min-height: 100vh;
+  place-items: center;
+  padding: 28px 20px;
+  background:
+    radial-gradient(circle at 12% 8%, rgb(36 118 255 / 16%), transparent 34%),
+    linear-gradient(180deg, #eef5ff 0%, #f7f9fd 60%);
+}
+
+.panel {
+  width: min(100%, 420px);
+  padding: 30px 24px;
+  border: 1px solid rgb(214 226 244 / 88%);
+  border-radius: 28px;
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 24px 70px rgb(31 71 135 / 14%);
+  text-align: center;
+}
+
+.mark {
+  display: grid;
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 18px;
+  place-items: center;
+  border-radius: 20px;
+  background: linear-gradient(145deg, #0877ff, #174fc7);
+  color: #fff;
+  font-size: 28px;
+  font-weight: 800;
+  box-shadow: 0 14px 28px rgb(21 94 239 / 28%);
+}
+
+.panel h1 { font-size: 22px; }
+.panel p { margin: 10px 0 22px; color: #66758a; font-size: 13px; line-height: 1.7; }
+.actions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.actions button { min-height: 46px; border: 0; border-radius: 14px; font-size: 14px; font-weight: 650; cursor: pointer; }
+.secondary { background: #eef3fa; color: #38506f; }
+.primary { background: linear-gradient(135deg, #0b72f4, #1557d5); color: #fff; }

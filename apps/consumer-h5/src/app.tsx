@@ -2,13 +2,16 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ApiProblemError } from '@minipay/api-client';
 import dayjs from 'dayjs';
 import type { ReactNode } from 'react';
+import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { onUnauthorized } from './services/http';
 import { queryKeys } from './query/keys';
+import { installChunkRecovery } from './utils/chunk-recovery';
 import 'dayjs/locale/zh-cn';
 import 'antd-mobile/es/global';
 import './global.less';
 
 dayjs.locale('zh-cn');
+installChunkRecovery();
 
 /** 4xx（除 408/429）不重试；网络类错误最多重试 2 次。 */
 function shouldRetry(failureCount: number, error: unknown): boolean {
@@ -48,7 +51,11 @@ onUnauthorized(() => {
 });
 
 export function rootContainer(container: ReactNode) {
-  return <QueryClientProvider client={queryClient}>{container}</QueryClientProvider>;
+  return (
+    <AppErrorBoundary>
+      <QueryClientProvider client={queryClient}>{container}</QueryClientProvider>
+    </AppErrorBoundary>
+  );
 }
 
 /**

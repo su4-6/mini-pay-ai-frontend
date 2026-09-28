@@ -3,15 +3,19 @@
   flex-direction: column;
   min-height: 100vh;
   max-width: 100%;
-  background: var(--mp-shell-bg);
+  background:
+    radial-gradient(circle at 100% 0, rgb(83 147 255 / 8%), transparent 28%),
+    var(--mp-shell-bg);
 }
 
 .header {
   position: sticky;
   top: 0;
   z-index: 20;
-  border-bottom: 1px solid var(--mp-border);
-  background: #fff;
+  border-bottom: 1px solid rgb(220 228 240 / 72%);
+  background: rgb(255 255 255 / 92%);
+  box-shadow: 0 3px 18px rgb(42 69 109 / 5%);
+  backdrop-filter: blur(16px);
 }
 
 .navbar {
@@ -35,8 +39,8 @@
   flex: 1;
   width: 100%;
   min-width: 0;
-  padding: 12px;
-  padding-bottom: 24px;
+  padding: 14px;
+  padding-bottom: 28px;
 }
 
 .mainFlush {
@@ -56,8 +60,10 @@
   z-index: 30;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  border-top: 1px solid var(--mp-border);
-  background: #fff;
+  border-top: 1px solid rgb(218 227 239 / 80%);
+  background: rgb(255 255 255 / 94%);
+  box-shadow: 0 -10px 30px rgb(25 54 96 / 8%);
+  backdrop-filter: blur(18px);
   padding-bottom: env(safe-area-inset-bottom);
 }
 
@@ -76,10 +82,16 @@
 
 .tabItemActive {
   color: var(--mp-primary);
+  font-weight: 650;
 }
 
 .tabIcon {
   font-size: 22px;
+}
+
+.tabItemActive .tabIcon {
+  filter: drop-shadow(0 4px 7px rgb(21 94 239 / 22%));
+  transform: translateY(-1px);
 }
 
 @media (min-width: 768px) {

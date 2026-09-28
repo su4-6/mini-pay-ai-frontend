@@ -47,12 +47,12 @@ function HomeWorkspace() {
   const greeting = hour < 6 ? '夜深了' : hour < 12 ? '上午好' : hour < 18 ? '下午好' : '晚上好';
 
   return (
-    <AppShell title="MiniPay" showTabBar>
+    <AppShell title="MiniPay" showTabBar headerless>
       <section className={styles.hero}>
         <div className={styles.heroTop}>
           <div>
+            <p className={styles.brandLine}><span className={styles.miniMark}>M</span> MiniPay <em>沙箱钱包</em></p>
             <p className={styles.eyebrow}>{greeting}，{profile?.displayName || 'MiniPay 用户'}</p>
-            <h1 className={styles.heroTitle}>我的钱包</h1>
           </div>
           <Link to={ROUTES.me} className={styles.avatar} aria-label="进入个人中心">
             {(profile?.displayName || 'M').slice(0, 1).toUpperCase()}
@@ -71,6 +71,11 @@ function HomeWorkspace() {
         <div className={styles.balanceMeta}>
           <span>{needsRealName ? '完成实名后开通钱包' : `冻结 ${formatFenWithSymbol(wallet.data?.frozenFen ?? 0)}`}</span>
           <Link to={ROUTES.wallet} className={styles.detailLink}>钱包详情 <RightOutline /></Link>
+        </div>
+        <div className={styles.heroStats}>
+          <div><span>账户状态</span><strong>{needsRealName ? '待实名' : '运行正常'}</strong></div>
+          <i aria-hidden />
+          <div><span>安全保护</span><strong>{needsPayPassword ? '待完善' : '已开启'}</strong></div>
         </div>
       </section>
 
@@ -100,6 +105,12 @@ function HomeWorkspace() {
           ))}
         </div>
       </section>
+
+      <Link to={ROUTES.chat} className={styles.aiBanner}>
+        <span className={styles.aiIcon}><MessageOutline /></span>
+        <span><strong>有问题，问米灵</strong><small>账单解读、功能导航与沙箱使用提示</small></span>
+        <RightOutline />
+      </Link>
 
       <section className={styles.section}>
         <div className={styles.sectionHeader}>

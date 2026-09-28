@@ -1,11 +1,13 @@
-.page { display:flex; flex-direction:column; gap:14px; }
-.intro { padding:18px; border:1px solid #dbe6f5; border-radius:20px; background:linear-gradient(140deg,#f5f9ff,#fff); }
-.intro h1 { font-size:22px; line-height:1.35; }
-.intro p { margin-top:7px; color:#69778a; font-size:12px; line-height:1.7; }
-.card { padding:18px 16px; border:1px solid #dce5f1; border-radius:20px; background:#fff; box-shadow:0 8px 26px rgb(31 63 111 / 7%); }
+.page { display:flex; flex-direction:column; gap:15px; }
+.intro { position:relative;padding:22px 20px;overflow:hidden;border:1px solid #d7e5f7;border-radius:23px;background:radial-gradient(circle at 92% 18%,rgb(70 145 255 / 17%),transparent 30%),linear-gradient(140deg,#eef6ff,#fff 72%);box-shadow:0 9px 28px rgb(31 77 145 / 6%); }
+.intro::after{position:absolute;right:-24px;bottom:-52px;width:110px;height:110px;border:1px solid rgb(32 105 217 / 10%);border-radius:50%;content:''}
+.intro h1 { position:relative;font-size:23px;line-height:1.35;letter-spacing:-.5px; }
+.intro p { position:relative;max-width:86%;margin-top:8px;color:#69778a;font-size:12px;line-height:1.75; }
+.card { padding:20px 18px; border:1px solid rgb(218 227 240 / 82%); border-radius:22px; background:rgb(255 255 255 / 97%); box-shadow:0 10px 30px rgb(31 63 111 / 7%); }
 .card h2 { margin-bottom:14px; font-size:16px; }
 .field { display:flex; flex-direction:column; gap:7px; margin-bottom:15px; }
-.field label { color:#526174; font-size:12px; font-weight:600; }
+.field label { color:#415168; font-size:12px; font-weight:650; }
+.field :global(.adm-input),.field :global(.adm-text-area){min-height:48px;padding:0 13px;border:1px solid #dee7f2;border-radius:14px;background:#f8fafd;transition:border-color .2s,box-shadow .2s,background .2s}.field :global(.adm-text-area){padding-top:10px}.field :global(.adm-input):focus-within,.field :global(.adm-text-area):focus-within{border-color:#4d91ee;background:#fff;box-shadow:0 0 0 3px rgb(21 94 239 / 8%)}
 .hint { color:#8a96a6; font-size:11px; line-height:1.6; }
 .actions { display:flex; flex-direction:column; gap:10px; margin-top:14px; }
 .avatar { display:grid; width:68px; height:68px; place-items:center; border-radius:22px; background:linear-gradient(145deg,#0b6bff,#2e55bd); color:#fff; font-size:26px; font-weight:750; box-shadow:0 10px 22px rgb(18 91 210 / 22%); }
@@ -18,9 +20,10 @@
 .preview { width:100%; max-height:240px; margin-top:10px; border-radius:14px; object-fit:contain; background:#f3f6fa; }
 .success { padding:16px; border:1px solid #bce7cd; border-radius:16px; background:#effbf4; color:#16764a; line-height:1.7; }
 .danger { color:#b42318; }
-.tabs { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; padding:5px; border-radius:14px; background:#edf2f8; }
+.tabs { display:grid; grid-template-columns:repeat(2,1fr); gap:8px; padding:5px; border-radius:16px; background:#eaf0f8; }
 .tab { min-height:40px; border:0; border-radius:11px; background:transparent; color:#66758a; }.tabActive{background:#fff;color:#1761c2;font-weight:650;box-shadow:0 3px 10px rgb(31 63 111 / 10%)}
-.bankCard { padding:17px; border-radius:18px; background:linear-gradient(135deg,#175ec9,#173f91); color:#fff; box-shadow:0 10px 24px rgb(23 75 155 / 22%); }
+.bankCard { position:relative;padding:20px;overflow:hidden;border-radius:22px;background:radial-gradient(circle at 92% 8%,rgb(110 184 255 / 52%),transparent 30%),linear-gradient(135deg,#1476e9,#163f9b);color:#fff;box-shadow:0 14px 30px rgb(23 75 155 / 24%); }
+.bankCard::after{position:absolute;right:-30px;bottom:-60px;width:130px;height:130px;border:1px solid rgb(255 255 255 / 20%);border-radius:50%;content:''}
 .bankTop { display:flex; align-items:center; justify-content:space-between; }.bankTop strong{font-size:16px}.bankTop span{font-size:11px;opacity:.76}.cardNo{margin-top:26px;font-size:20px;font-weight:650;letter-spacing:1.2px}.bankActions{display:flex;gap:8px;margin-top:16px}.bankActions button{flex:1}
 .empty { padding:28px 16px; border:1px dashed #cad5e4; border-radius:18px; color:#8592a3; text-align:center; line-height:1.7; }
 .amountResult { margin:10px 0; color:#1761c2; font-size:26px; font-weight:750; }

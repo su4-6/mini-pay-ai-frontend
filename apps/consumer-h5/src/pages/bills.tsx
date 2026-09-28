@@ -67,7 +67,7 @@ function BillsWorkspace() {
   }
 
   return (
-    <AppShell title="账单" subtitle="只读分页，按服务端游标加载" backTo="/wallet">
+    <AppShell title="账单" subtitle="每一笔资金变化都有记录" showTabBar>
       {first ? (
         <div className={styles.summaryCard}>
           <div>

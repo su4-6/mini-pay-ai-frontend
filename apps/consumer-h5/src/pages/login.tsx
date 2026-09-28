@@ -111,34 +111,55 @@ export default function LoginPage() {
   return (
     <div className={styles.page}>
       <header className={styles.brand}>
-        <h1 className={styles.brandTitle}>MiniPay 钱包</h1>
-        <p className={styles.brandSubtitle}>
-          手机号 + 短信验证码登录。资金操作全程由服务端校验，浏览器不保存支付密码。
-        </p>
+        <div className={styles.brandBar}>
+          <span className={styles.brandMark} aria-hidden>M</span>
+          <span className={styles.brandName}>MiniPay</span>
+          <span className={styles.sandboxTag}>SANDBOX</span>
+        </div>
+        <div className={styles.brandCopy}>
+          <p className={styles.eyebrow}>轻量、安全的数字钱包体验</p>
+          <h1 className={styles.brandTitle}>把每一笔演示资金<br />都看得清清楚楚</h1>
+          <p className={styles.brandSubtitle}>钱包、转账、账单与米灵助手，在一个移动端入口完成。</p>
+        </div>
+        <div className={styles.heroVisual} aria-hidden>
+          <span className={styles.orbitOne} />
+          <span className={styles.orbitTwo} />
+          <div className={styles.walletGlyph}>¥</div>
+        </div>
       </header>
 
       <section className={styles.form} aria-label="短信登录">
+        <div className={styles.formHeading}>
+          <div>
+            <p>欢迎使用</p>
+            <h2>手机号快捷登录</h2>
+          </div>
+          <span>新用户自动注册</span>
+        </div>
         <div className={styles.field}>
           <label className={styles.fieldLabel} htmlFor="login-mobile">
             手机号
           </label>
-          <Input
-            id="login-mobile"
-            type="tel"
-            inputMode="numeric"
-            autoComplete="tel"
-            placeholder="请输入 11 位手机号"
-            value={mobile}
-            maxLength={11}
-            onChange={(value) => setMobile(normalizeDigits(value, 11))}
-          />
+          <div className={styles.inputShell}>
+            <span className={styles.prefix}>+86</span>
+            <Input
+              id="login-mobile"
+              type="tel"
+              inputMode="numeric"
+              autoComplete="tel"
+              placeholder="请输入 11 位手机号"
+              value={mobile}
+              maxLength={11}
+              onChange={(value) => setMobile(normalizeDigits(value, 11))}
+            />
+          </div>
         </div>
 
         <div className={styles.field}>
           <label className={styles.fieldLabel} htmlFor="login-code">
             短信验证码
           </label>
-          <div className={styles.codeRow}>
+          <div className={`${styles.codeRow} ${styles.inputShell}`}>
             <Input
               id="login-code"
               type="tel"
@@ -187,13 +208,19 @@ export default function LoginPage() {
         {sendMutation.isError ? <ProblemNotice error={sendMutation.error} /> : null}
         {loginMutation.isError ? <ProblemNotice error={loginMutation.error} /> : null}
 
-        <Button block color="primary" size="large" loading={submitting} onClick={handleLogin}>
-          登录 / 注册
+        <Button className={styles.loginButton} block color="primary" size="large" loading={submitting} onClick={handleLogin}>
+          安全登录
         </Button>
+
+        <div className={styles.trustRow} aria-label="安全说明">
+          <span><i aria-hidden>✓</i> HttpOnly 会话</span>
+          <span><i aria-hidden>✓</i> 密码服务端校验</span>
+          <span><i aria-hidden>✓</i> 沙箱资金</span>
+        </div>
       </section>
 
       <p className={styles.footer}>
-        MiniPay 是沙箱演示系统，不连接真实银行账户；未注册手机号验证后会创建演示账户。
+        MiniPay 沙箱演示系统 · 不连接真实银行账户
       </p>
     </div>
   );

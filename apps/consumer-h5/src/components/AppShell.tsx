@@ -34,6 +34,8 @@ export interface AppShellProps {
   backTo?: string;
   right?: ReactNode;
   showTabBar?: boolean;
+  /** 首页这类沉浸式页面可隐藏白色顶部栏。 */
+  headerless?: boolean;
   /** 内容区去掉默认内边距（聊天页等需要撑满的场景）。 */
   flush?: boolean;
 }
@@ -44,6 +46,7 @@ export function AppShell({
   backTo,
   right,
   showTabBar,
+  headerless,
   flush,
   children
 }: PropsWithChildren<AppShellProps>) {
@@ -60,20 +63,22 @@ export function AppShell({
 
   return (
     <div className={styles.shell}>
-      <header className={styles.header}>
-        <NavBar
-          className={styles.navbar}
-          back={backTo ? '' : null}
-          onBack={() => {
-            if (backTo) navigate(backTo);
-            else navigate(-1);
-          }}
-          right={right}
-        >
-          <span className={styles.title}>{title}</span>
-        </NavBar>
-        {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
-      </header>
+      {!headerless ? (
+        <header className={styles.header}>
+          <NavBar
+            className={styles.navbar}
+            back={backTo ? '' : null}
+            onBack={() => {
+              if (backTo) navigate(backTo);
+              else navigate(-1);
+            }}
+            right={right}
+          >
+            <span className={styles.title}>{title}</span>
+          </NavBar>
+          {subtitle ? <p className={styles.subtitle}>{subtitle}</p> : null}
+        </header>
+      ) : null}
       <main className={mainClassName}>{children}</main>
       {showTabBar ? (
         <nav className={styles.tabbar} aria-label="主导航">

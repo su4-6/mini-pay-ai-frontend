@@ -1,7 +1,14 @@
 import { useNavigate } from '@umijs/max';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Dialog, Toast } from 'antd-mobile';
-import { RightOutline } from 'antd-mobile-icons';
+import {
+  BankcardOutline,
+  BillOutline,
+  PayCircleOutline,
+  ReceivePaymentOutline,
+  RightOutline,
+  UserOutline
+} from 'antd-mobile-icons';
 import { maskPhone } from '@minipay/shared';
 import { AppShell } from '../components/AppShell';
 import { AuthGate } from '../components/AuthGate';
@@ -58,15 +65,24 @@ function MeWorkspace() {
         <div className={styles.avatar} aria-hidden>
           {(profile?.displayName ?? 'M').slice(0, 1)}
         </div>
-        <div>
+        <div className={styles.identity}>
+          <span className={styles.accountTag}>MINIPAY 账户</span>
           <div className={styles.name}>{profile?.displayName ?? 'MiniPay 用户'}</div>
           <div className={styles.meta}>{profile?.phone ? maskPhone(profile.phone) : '未获取到手机号'}</div>
         </div>
+        <div className={styles.headerArrow}><RightOutline /></div>
+      </section>
+
+      <section className={styles.statusGrid} aria-label="账户状态概览">
+        <div><span>实名认证</span><strong>{profile?.realNameVerified ? '已完成' : '待完善'}</strong></div>
+        <div><span>支付密码</span><strong>{payPasswordSet ? '已开启' : '待设置'}</strong></div>
+        <div><span>会话保护</span><strong>已启用</strong></div>
       </section>
 
       <Card title="账户与安全" tight>
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.profile)}>
-          <span>
+          <span className={`${styles.entryIcon} ${styles.iconBlue}`}><UserOutline /></span>
+          <span className={styles.entryMain}>
             <span className={styles.entryLabel}>个人资料</span>
             <span className={styles.entryHint}>修改昵称与查看账户标识</span>
           </span>
@@ -74,7 +90,8 @@ function MeWorkspace() {
         </button>
 
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.security)}>
-          <span>
+          <span className={`${styles.entryIcon} ${styles.iconViolet}`}>安</span>
+          <span className={styles.entryMain}>
             <span className={styles.entryLabel}>账户安全</span>
             <span className={styles.entryHint}>手机号与支付密码管理</span>
           </span>
@@ -85,7 +102,8 @@ function MeWorkspace() {
         </button>
 
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.realName)}>
-          <span>
+          <span className={`${styles.entryIcon} ${styles.iconGreen}`}>证</span>
+          <span className={styles.entryMain}>
             <span className={styles.entryLabel}>实名状态</span>
             <span className={styles.entryHint}>资金操作前需要完成沙箱实名认证</span>
           </span>
@@ -96,7 +114,8 @@ function MeWorkspace() {
         </button>
 
         <div className={styles.entry} aria-readonly="true">
-          <span>
+          <span className={`${styles.entryIcon} ${styles.iconGray}`}>ID</span>
+          <span className={styles.entryMain}>
             <span className={styles.entryLabel}>用户 ID</span>
             <span className={styles.entryHint}>服务端会话主体标识</span>
           </span>
@@ -108,22 +127,27 @@ function MeWorkspace() {
 
       <Card title="常用入口" tight>
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.bankCards)}>
+          <span className={`${styles.entryIcon} ${styles.iconBlue}`}><BankcardOutline /></span>
           <span className={styles.entryLabel}>我的银行卡</span>
           <RightOutline aria-hidden />
         </button>
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.funding)}>
+          <span className={`${styles.entryIcon} ${styles.iconGreen}`}><PayCircleOutline /></span>
           <span className={styles.entryLabel}>充值与提现</span>
           <RightOutline aria-hidden />
         </button>
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.wallet)}>
+          <span className={`${styles.entryIcon} ${styles.iconViolet}`}><BillOutline /></span>
           <span className={styles.entryLabel}>钱包与账单</span>
           <RightOutline aria-hidden />
         </button>
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.transfers)}>
+          <span className={`${styles.entryIcon} ${styles.iconOrange}`}><PayCircleOutline /></span>
           <span className={styles.entryLabel}>转账记录</span>
           <RightOutline aria-hidden />
         </button>
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.collect)}>
+          <span className={`${styles.entryIcon} ${styles.iconCyan}`}><ReceivePaymentOutline /></span>
           <span className={styles.entryLabel}>我的收款码</span>
           <RightOutline aria-hidden />
         </button>
