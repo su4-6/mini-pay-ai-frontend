@@ -69,6 +69,7 @@ export function MessageList({
               key={message.id}
               className={mine ? `${styles.bubbleRow} ${styles.bubbleRowUser}` : styles.bubbleRow}
             >
+              {!mine ? <span className={styles.messageAvatar} aria-hidden>米</span> : null}
               <div className={`${styles.bubble} ${mine ? styles.bubbleUser : styles.bubbleAssistant}`}>
                 <div className={styles.bubbleRole} style={mine ? { color: 'rgba(255,255,255,.75)' } : undefined}>
                   {roleLabel(message.role)}

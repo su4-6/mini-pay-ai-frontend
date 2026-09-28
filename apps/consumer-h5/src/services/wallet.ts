@@ -1,5 +1,5 @@
 import type { BankCard, CollectionCode, WalletBill, WalletBillPage, WalletSummary } from '../types/consumer';
-import { asRecord, readFen, readPage, readString } from './parsers';
+import { asArray, asRecord, readFen, readPage, readString } from './parsers';
 import { buildQuery, httpRequest } from './http';
 
 /**
@@ -86,6 +86,8 @@ export async function fetchCollectionCode(): Promise<CollectionCode> {
 
 export async function fetchBankCards(): Promise<BankCard[]> {
   const raw = await httpRequest<unknown>('/api/v1/bank-cards', { method: 'GET' });
-  const page = readPage(raw);
-  return page.items.map(parseBankCard);
+  // Payment 的银行卡列表契约直接返回 JSON 数组；同时兼容未来的分页信封。
+  // 不能一律交给 readPage：数组会被视为空对象，造成“绑定成功但列表仍为空”。
+  const items = Array.isArray(raw) ? asArray(raw) : readPage(raw).items;
+  return items.map(parseBankCard).filter((card) => card.cardId);
 }

@@ -17,7 +17,11 @@ import { createConversation, listConversations, listMessages } from '../services
 import { useChatStore } from '../stores/chat';
 import { useTransferStore } from '../stores/transfer-intent';
 
-const SUGGESTIONS = ['查看我的钱包余额', '把 1 元转给 13800000000', '帮我看看最近的账单'];
+const SUGGESTIONS = [
+  { icon: '¥', title: '查询余额', prompt: '查看我的钱包余额', hint: '可用与冻结金额' },
+  { icon: '↗', title: '转账助手', prompt: '把 1 元转给 13800000000', hint: '生成待确认转账' },
+  { icon: '≡', title: '分析账单', prompt: '帮我看看最近的账单', hint: '查找最近收支' }
+] as const;
 
 function ChatWorkspace() {
   const navigate = useNavigate();
@@ -118,29 +122,41 @@ function ChatWorkspace() {
         <div className={chatStyles.workspace}>
           {showEmptyHero ? (
             <section className={chatStyles.emptyHero} aria-label="米灵引导">
-              <h2 className={chatStyles.emptyTitle}>你好，我是米灵</h2>
-              <p style={{ color: '#667085', fontSize: 13, lineHeight: 1.6 }}>
-                我可以帮你查余额、看账单，并引导你完成转账。所有资金操作都会先由你确认，
-                并跳转到钱包完成支付密码校验。
-              </p>
-              <div className={chatStyles.suggestions}>
-                {SUGGESTIONS.map((text) => (
+              <div className={chatStyles.heroHeading}>
+                <div className={chatStyles.assistantAvatar} aria-hidden>米</div>
+                <div>
+                  <span className={chatStyles.heroBadge}>AI 钱包助理 · 在线</span>
+                  <h2 className={chatStyles.emptyTitle}>你好，我是米灵</h2>
+                  <p className={chatStyles.heroDescription}>
+                    我能帮你查询钱包、整理账单，也能把转账需求变成一张由你核对的确认卡。
+                  </p>
+                </div>
+              </div>
+              <div className={chatStyles.capabilityGrid}>
+                {SUGGESTIONS.map((item) => (
                   <button
-                    key={text}
+                    key={item.prompt}
                     type="button"
-                    className={chatStyles.suggestionChip}
-                    onClick={() => void handleSuggestion(text)}
+                    className={chatStyles.capabilityCard}
+                    onClick={() => void handleSuggestion(item.prompt)}
                   >
-                    {text}
+                    <span className={chatStyles.capabilityIcon} aria-hidden>{item.icon}</span>
+                    <span><strong>{item.title}</strong><small>{item.hint}</small></span>
                   </button>
                 ))}
               </div>
-              <div className={chatStyles.suggestions}>
-                <Button size="mini" color="primary" fill="outline" onClick={() => navigate(ROUTES.wallet)}>
-                  去钱包转账
-                </Button>
+              <div className={chatStyles.safetyNote}>
+                <span aria-hidden>✓</span>
+                米灵只读取获授权的沙箱数据，不接收支付密码，也不会直接扣款
               </div>
             </section>
+          ) : null}
+
+          {!showEmptyHero ? (
+            <div className={chatStyles.assistantStatus} role="status">
+              <span className={chatStyles.statusDot} aria-hidden />
+              米灵已连接 · 资金操作仍由你最终确认
+            </div>
           ) : null}
 
           <AsyncState
