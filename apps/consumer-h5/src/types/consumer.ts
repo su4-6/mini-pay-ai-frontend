@@ -251,6 +251,13 @@ export interface AiConversationPage {
 
 export type AiMessageRole = 'USER' | 'ASSISTANT' | 'SYSTEM' | 'TOOL';
 
+/** 米灵只生成“建议操作”，不得直接执行资金动作。 */
+export interface AiSuggestedAction {
+  type: string;
+  amountFen?: number;
+  payeeIdentifier?: string;
+}
+
 /** AI：消息 */
 export interface AiMessage {
   id: string;
@@ -258,6 +265,7 @@ export interface AiMessage {
   role: AiMessageRole;
   content: string;
   cardType?: string;
+  suggestedAction?: AiSuggestedAction;
   sequenceNo?: number;
   createdAt: string;
 }

@@ -57,6 +57,10 @@ const MESSAGES: Record<string, { message: string; problemClass: ProblemClass }> 
   // 转账
   INSUFFICIENT_BALANCE: { message: '余额不足，请先充值', problemClass: 'FATAL' },
   PAYEE_NOT_FOUND: { message: '未找到收款人，请确认收款账号或手机号', problemClass: 'FATAL' },
+  TRANSFER_RECIPIENT_NOT_FOUND: {
+    message: '该手机号未注册或暂不可转账，请核对后再试',
+    problemClass: 'FATAL'
+  },
   PAYEE_NOT_TRANSFERABLE: { message: '该收款人当前不可收款', problemClass: 'FATAL' },
   SELF_TRANSFER_NOT_ALLOWED: { message: '不能向自己转账', problemClass: 'FATAL' },
   TRANSFER_INTENT_NOT_FOUND: { message: '转账意图不存在或已失效，请重新发起', problemClass: 'FATAL' },

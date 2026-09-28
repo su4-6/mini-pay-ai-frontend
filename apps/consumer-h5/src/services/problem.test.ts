@@ -40,6 +40,11 @@ describe('Problem Details 错误映射', () => {
     expect(view.message).toBe('验证码错误，请重新输入');
   });
 
+  it('收款手机号不存在时给出业务提示，而不是泛化为资源不存在', () => {
+    const view = describeProblem(problem({ code: 'TRANSFER_RECIPIENT_NOT_FOUND', status: 404 }));
+    expect(view.message).toBe('该手机号未注册或暂不可转账，请核对后再试');
+  });
+
   it('保留 requestId 供客服定位', () => {
     const view = describeProblem(problem({ code: 'SMS_CODE_EXPIRED', requestId: 'req-abc' }));
     expect(view.requestId).toBe('req-abc');

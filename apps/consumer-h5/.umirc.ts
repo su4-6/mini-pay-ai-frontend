@@ -20,6 +20,9 @@ export default defineConfig({
   esbuildMinifyIIFE: true,
   jsMinifier: 'terser',
   codeSplitting: { jsStrategy: 'granularChunks' },
+  // 路由组件是异步分包。用户看到首页后立即预取页面中的导航目标，
+  // 避免移动网络下第一次点进功能页才开始下载、误以为页面白屏。
+  routePrefetch: { defaultPrefetch: 'render', defaultPrefetchTimeout: 100 },
   cssMinifierOptions: { charset: 'utf8' },
   define: {
     MINIPAY_PUBLIC_PATH: deployBase,

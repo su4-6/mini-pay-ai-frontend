@@ -4,7 +4,8 @@ import type {
   AiMessage,
   AiMessagePage,
   AiRunEvent,
-  AiRunHandle
+  AiRunHandle,
+  AiSuggestedAction
 } from '../types/consumer';
 import { asRecord, readFen, readPage, readString } from './parsers';
 import { buildQuery, httpRequest } from './http';
@@ -48,15 +49,32 @@ function parseConversation(raw: unknown): AiConversation {
   };
 }
 
-function parseMessage(raw: unknown): AiMessage {
+function parseSuggestedAction(raw: unknown): AiSuggestedAction | undefined {
+  const record = asRecord(raw);
+  const type = readString(record, 'type')?.toUpperCase();
+  if (!type) return undefined;
+
+  const amountFen = readFen(record, 'amountFen', 'amountCent');
+  const payeeIdentifier = readString(record, 'payeeIdentifier');
+  return {
+    type,
+    ...(amountFen !== undefined ? { amountFen } : {}),
+    ...(payeeIdentifier ? { payeeIdentifier } : {})
+  };
+}
+
+/** 导出用于契约测试；页面只通过 listMessages 使用。 */
+export function parseMessage(raw: unknown): AiMessage {
   const record = asRecord(raw);
   const role = (readString(record, 'role') ?? 'ASSISTANT').toUpperCase();
+  const suggestedAction = parseSuggestedAction(record.suggestedAction);
   return {
     id: readString(record, 'id', 'messageId') ?? '',
     runId: readString(record, 'runId'),
     role: role === 'USER' || role === 'SYSTEM' || role === 'TOOL' ? role : 'ASSISTANT',
     content: readString(record, 'content', 'text') ?? '',
     cardType: readString(record, 'cardType'),
+    ...(suggestedAction ? { suggestedAction } : {}),
     sequenceNo: readFen(record, 'sequenceNo'),
     createdAt: readString(record, 'createdAt', 'occurredAt') ?? ''
   };

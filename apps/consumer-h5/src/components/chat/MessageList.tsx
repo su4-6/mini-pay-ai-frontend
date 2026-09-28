@@ -1,6 +1,7 @@
 import { SpinLoading } from 'antd-mobile';
 import { useEffect, useRef } from 'react';
-import type { AiMessage, AiStreamPhase } from '../../types/consumer';
+import type { AiMessage, AiStreamPhase, AiSuggestedAction } from '../../types/consumer';
+import { formatFenWithSymbol } from '../../utils/money';
 import { formatDateTime } from '../../utils/datetime';
 import { InlineNotice } from '../InlineNotice';
 import { ProblemNotice } from '../ProblemNotice';
@@ -14,6 +15,24 @@ export interface MessageListProps {
   /** 发送失败时的原始异常（保留 requestId）。 */
   sendError?: unknown;
   onDismissError?: () => void;
+  onSuggestedAction?: (action: AiSuggestedAction) => void;
+}
+
+function maskedPayee(identifier?: string): string {
+  if (!identifier) return '待确认收款人';
+  return /^1[3-9]\d{9}$/.test(identifier)
+    ? `${identifier.slice(0, 3)}****${identifier.slice(-4)}`
+    : identifier;
+}
+
+function isTransferAction(action?: AiSuggestedAction): action is AiSuggestedAction & {
+  amountFen: number;
+  payeeIdentifier: string;
+} {
+  return action?.type === 'TRANSFER'
+    && Number.isInteger(action.amountFen)
+    && (action.amountFen ?? 0) > 0
+    && Boolean(action.payeeIdentifier?.trim());
 }
 
 function roleLabel(role: AiMessage['role']): string {
@@ -30,7 +49,8 @@ export function MessageList({
   phase,
   streamError,
   sendError,
-  onDismissError
+  onDismissError,
+  onSuggestedAction
 }: MessageListProps) {
   const sentinelRef = useRef<HTMLDivElement | null>(null);
   const streaming = phase === 'STREAMING' || phase === 'RECONNECTING';
@@ -55,6 +75,23 @@ export function MessageList({
                   {message.createdAt ? ` · ${formatDateTime(message.createdAt)}` : ''}
                 </div>
                 {message.content}
+                {isTransferAction(message.suggestedAction) ? (
+                  <section className={styles.actionCard} aria-label="转账建议">
+                    <div>
+                      <span className={styles.actionEyebrow}>待你确认</span>
+                      <strong>{formatFenWithSymbol(message.suggestedAction.amountFen)}</strong>
+                      <span>转给 {maskedPayee(message.suggestedAction.payeeIdentifier)}</span>
+                    </div>
+                    <button
+                      type="button"
+                      className={styles.actionButton}
+                      onClick={() => onSuggestedAction?.(message.suggestedAction as AiSuggestedAction)}
+                    >
+                      核对并转账
+                    </button>
+                    <small>米灵不会直接扣款；下一页仍需服务端校验收款人并由你输入支付密码。</small>
+                  </section>
+                ) : null}
               </div>
             </li>
           );

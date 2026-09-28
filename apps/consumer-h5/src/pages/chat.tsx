@@ -15,6 +15,7 @@ import { MAX_PROMPT_LENGTH, useAiStream } from '../hooks/useAiStream';
 import { aiQueryKeys } from '../query/keys';
 import { createConversation, listConversations, listMessages } from '../services/ai';
 import { useChatStore } from '../stores/chat';
+import { useTransferStore } from '../stores/transfer-intent';
 
 const SUGGESTIONS = ['查看我的钱包余额', '把 1 元转给 13800000000', '帮我看看最近的账单'];
 
@@ -28,6 +29,7 @@ function ChatWorkspace() {
   const draft = useChatStore((state) => state.draft);
   const setDraft = useChatStore((state) => state.setDraft);
   const setActiveConversation = useChatStore((state) => state.setActiveConversation);
+  const setTransferDraft = useTransferStore((state) => state.setDraft);
 
   const conversationsQuery = useQuery({
     queryKey: aiQueryKeys.conversations,
@@ -156,6 +158,14 @@ function ChatWorkspace() {
               onDismissError={() => {
                 setSendError(null);
                 stream.dismissError();
+              }}
+              onSuggestedAction={(action) => {
+                if (!action.payeeIdentifier || !action.amountFen) return;
+                setTransferDraft({
+                  payeeIdentifier: action.payeeIdentifier,
+                  amountFen: action.amountFen
+                });
+                navigate(ROUTES.transfer);
               }}
             />
           </AsyncState>

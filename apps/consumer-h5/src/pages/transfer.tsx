@@ -19,7 +19,7 @@ import { describeProblem } from '../services/problem';
 import { cancelTransfer, confirmTransfer, prepareTransfer } from '../services/transfers';
 import { useTransferStore } from '../stores/transfer-intent';
 import { isExpired, remainingLabel } from '../utils/datetime';
-import { formatFenWithSymbol, sanitizeAmountInput, validateAmountInput } from '../utils/money';
+import { fenToYuanInput, formatFenWithSymbol, sanitizeAmountInput, validateAmountInput } from '../utils/money';
 import { isPayPassword } from '../utils/validators';
 import styles from './transfer.module.less';
 
@@ -39,15 +39,19 @@ function TransferWorkspace() {
   const realNameVerified = profile?.realNameVerified ?? false;
   const fundsReady = realNameVerified && payPasswordSet;
   const prepared = useTransferStore((state) => state.prepared);
+  const transferDraft = useTransferStore((state) => state.draft);
   const setPrepared = useTransferStore((state) => state.setPrepared);
+  const clearDraft = useTransferStore((state) => state.clearDraft);
   const clearPrepared = useTransferStore((state) => state.clear);
 
   const now = useNow(1_000);
   const [step, setStep] = useState<Step>(prepared ? 'confirm' : 'form');
 
-  const [payeeIdentifier, setPayeeIdentifier] = useState('');
+  const [payeeIdentifier, setPayeeIdentifier] = useState(transferDraft?.payeeIdentifier ?? '');
   const [remark, setRemark] = useState('');
-  const [amountInput, setAmountInput] = useState('');
+  const [amountInput, setAmountInput] = useState(
+    transferDraft ? fenToYuanInput(transferDraft.amountFen) : ''
+  );
   const [amountError, setAmountError] = useState<string | null>(null);
   // 支付密码只存在于组件状态，提交后立刻清空；不落任何持久化与 URL。
   const [paymentPassword, setPaymentPassword] = useState('');
@@ -55,6 +59,7 @@ function TransferWorkspace() {
   const prepareMutation = useMutation({
     mutationFn: prepareTransfer,
     onSuccess: (intent) => {
+      clearDraft();
       setPrepared(intent);
       setStep('confirm');
       setPaymentPassword('');
