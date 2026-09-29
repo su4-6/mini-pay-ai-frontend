@@ -47,7 +47,9 @@ function TransferWorkspace() {
   const now = useNow(1_000);
   const [step, setStep] = useState<Step>(prepared ? 'confirm' : 'form');
 
-  const [payeeIdentifier, setPayeeIdentifier] = useState(transferDraft?.payeeIdentifier ?? '');
+  // 收款人必须由用户在转账页主动填写，避免 AI 文本或历史草稿把脱敏号码
+  // 误当成真实手机号提交，也避免用户未核对就向预填对象转账。
+  const [payeeIdentifier, setPayeeIdentifier] = useState('');
   const [remark, setRemark] = useState('');
   const [amountInput, setAmountInput] = useState(
     transferDraft ? fenToYuanInput(transferDraft.amountFen) : ''

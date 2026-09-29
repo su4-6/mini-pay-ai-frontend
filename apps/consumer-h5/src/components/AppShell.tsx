@@ -1,30 +1,22 @@
 import { Link, useLocation, useNavigate } from '@umijs/max';
 import { NavBar } from 'antd-mobile';
-import {
-  AppOutline,
-  BillOutline,
-  MessageOutline,
-  UserOutline
-} from 'antd-mobile-icons';
+import { House, MessageCircle, ReceiptText, UserRound, type LucideIcon } from 'lucide-react';
 import type { PropsWithChildren, ReactNode } from 'react';
 import { ROUTES } from '../constants/routes';
 import styles from './AppShell.module.less';
 
-/** 所有 antd-mobile-icons 图标共享的组件类型。 */
-type IconComponent = typeof MessageOutline;
-
 interface TabItem {
   path: string;
   label: string;
-  Icon: IconComponent;
+  Icon: LucideIcon;
   exact?: boolean;
 }
 
 const TAB_ITEMS: TabItem[] = [
-  { path: ROUTES.home, label: '首页', Icon: AppOutline, exact: true },
-  { path: ROUTES.chat, label: '米灵', Icon: MessageOutline, exact: true },
-  { path: ROUTES.bills, label: '账单', Icon: BillOutline },
-  { path: ROUTES.me, label: '我的', Icon: UserOutline }
+  { path: ROUTES.home, label: '首页', Icon: House, exact: true },
+  { path: ROUTES.chat, label: '米灵', Icon: MessageCircle, exact: true },
+  { path: ROUTES.bills, label: '账单', Icon: ReceiptText },
+  { path: ROUTES.me, label: '我的', Icon: UserRound }
 ];
 
 export interface AppShellProps {
@@ -91,7 +83,7 @@ export function AppShell({
                 className={active ? `${styles.tabItem} ${styles.tabItemActive}` : styles.tabItem}
                 aria-current={active ? 'page' : undefined}
               >
-                <Icon className={styles.tabIcon} aria-hidden />
+                <Icon className={styles.tabIcon} aria-hidden strokeWidth={active ? 2.4 : 1.9} />
                 <span>{label}</span>
               </Link>
             );

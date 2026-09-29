@@ -1,17 +1,7 @@
 import { Link } from '@umijs/max';
 import { useQuery } from '@tanstack/react-query';
 import { useState } from 'react';
-import {
-  AddCircleOutline,
-  BankcardOutline,
-  BillOutline,
-  MessageOutline,
-  MinusCircleOutline,
-  PayCircleOutline,
-  ReceivePaymentOutline,
-  RightOutline,
-  ScanningOutline
-} from 'antd-mobile-icons';
+import { ArrowDownToLine, ArrowRight, ArrowUpFromLine, Bot, CreditCard, QrCode, ReceiptText, ScanLine, Send } from 'lucide-react';
 import { AppShell } from '../components/AppShell';
 import { AuthGate } from '../components/AuthGate';
 import { InlineNotice } from '../components/InlineNotice';
@@ -24,16 +14,16 @@ import { formatFenWithSymbol } from '../utils/money';
 import styles from './home.module.less';
 
 const primaryActions = [
-  { label: '扫一扫', path: ROUTES.pay, Icon: ScanningOutline, tone: 'violet' },
-  { label: '收款', path: ROUTES.collect, Icon: ReceivePaymentOutline, tone: 'cyan' },
-  { label: '转账', path: ROUTES.transfer, Icon: PayCircleOutline, tone: 'blue' }
+  { label: '扫一扫', path: ROUTES.pay, Icon: ScanLine, tone: 'violet' },
+  { label: '收款', path: ROUTES.collect, Icon: QrCode, tone: 'cyan' },
+  { label: '转账', path: ROUTES.transfer, Icon: Send, tone: 'blue' }
 ] as const;
 
 const actions = [
-  { label: '充值', path: `${ROUTES.funding}?type=RECHARGE`, Icon: AddCircleOutline, tone: 'green' },
-  { label: '提现', path: `${ROUTES.funding}?type=WITHDRAWAL`, Icon: MinusCircleOutline, tone: 'orange' },
-  { label: '银行卡', path: ROUTES.bankCards, Icon: BankcardOutline, tone: 'blue' },
-  { label: '米灵', path: ROUTES.chat, Icon: MessageOutline, tone: 'indigo' }
+  { label: '充值', path: `${ROUTES.funding}?type=RECHARGE`, Icon: ArrowDownToLine, tone: 'green' },
+  { label: '提现', path: `${ROUTES.funding}?type=WITHDRAWAL`, Icon: ArrowUpFromLine, tone: 'orange' },
+  { label: '银行卡', path: ROUTES.bankCards, Icon: CreditCard, tone: 'blue' },
+  { label: '米灵', path: ROUTES.chat, Icon: Bot, tone: 'indigo' }
 ] as const;
 
 function HomeWorkspace() {
@@ -96,7 +86,7 @@ function HomeWorkspace() {
         </div>
         <div className={styles.assetActions}>
           {!needsRealName ? <button type="button" onClick={() => setShowBalance((value) => !value)}>{showBalance ? '隐藏金额' : '查看金额'}</button> : null}
-          <Link to={ROUTES.wallet}>钱包详情 <RightOutline /></Link>
+          <Link to={ROUTES.wallet}>钱包详情 <ArrowRight /></Link>
         </div>
       </section>
 
@@ -113,14 +103,14 @@ function HomeWorkspace() {
       </section>
 
       <Link to={ROUTES.chat} className={styles.aiBanner}>
-        <span className={styles.aiIcon}><MessageOutline /></span>
+        <span className={styles.aiIcon}><Bot /></span>
         <span><strong>有问题，问米灵</strong><small>账单解读、功能导航与沙箱使用提示</small></span>
-        <RightOutline />
+        <ArrowRight />
       </Link>
 
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h2>最近账单</h2><Link to={ROUTES.bills}>查看全部 <RightOutline /></Link>
+          <h2>最近账单</h2><Link to={ROUTES.bills}>查看全部 <ArrowRight /></Link>
         </div>
         {bills.isLoading ? <div className={styles.skeleton}>正在加载账单…</div> : null}
         {bills.isError ? <button className={styles.retry} onClick={() => void bills.refetch()}>账单加载失败，点此重试</button> : null}
@@ -134,7 +124,7 @@ function HomeWorkspace() {
         <div className={styles.billList}>
           {bills.data?.items.map((bill) => (
             <div className={styles.bill} key={bill.billId}>
-              <div className={styles.billIcon}><BillOutline /></div>
+              <div className={styles.billIcon}><ReceiptText /></div>
               <div className={styles.billMain}>
                 <strong>{bill.counterpartyDisplay || bill.remark || bill.businessType}</strong>
                 <small>{formatDateTime(bill.occurredAt)}</small>

@@ -63,6 +63,7 @@ const MESSAGES: Record<string, { message: string; problemClass: ProblemClass }> 
   },
   PAYEE_NOT_TRANSFERABLE: { message: '该收款人当前不可收款', problemClass: 'FATAL' },
   SELF_TRANSFER_NOT_ALLOWED: { message: '不能向自己转账', problemClass: 'FATAL' },
+  SELF_COLLECTION_CODE: { message: '这是你自己的收款码，不能扫码付款给自己', problemClass: 'FATAL' },
   TRANSFER_INTENT_NOT_FOUND: { message: '转账意图不存在或已失效，请重新发起', problemClass: 'FATAL' },
   TRANSFER_INTENT_EXPIRED: { message: '转账确认已超时，请重新发起转账', problemClass: 'FATAL' },
   TRANSFER_INTENT_CANCELLED: { message: '该转账已取消', problemClass: 'FATAL' },

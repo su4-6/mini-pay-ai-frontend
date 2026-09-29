@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query';
 import { Button, Toast } from 'antd-mobile';
 import { CheckShieldOutline, ShopbagOutline, UserOutline } from 'antd-mobile-icons';
 import { QRCodeSVG } from 'qrcode.react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { AppShell } from '../components/AppShell';
 import { AsyncState } from '../components/AsyncState';
 import { AuthGate } from '../components/AuthGate';
@@ -25,14 +25,20 @@ function CollectWorkspace() {
   const { profile } = useSession();
   const now = useNow(1_000);
   const [mode, setMode] = useState<CodeMode>('personal');
+  const [merchantId, setMerchantId] = useState('');
   const personalQuery = useQuery({ queryKey: queryKeys.collectionCode, queryFn: fetchCollectionCode, staleTime: 30_000 });
   const merchantQuery = useQuery({ queryKey: queryKeys.merchantCenter, queryFn: fetchMerchantCenter, staleTime: 20_000 });
-  const merchant = merchantQuery.data?.merchants.find((item) => item.status === 'ACTIVE');
+  const readyMerchants = merchantQuery.data?.merchants.filter((item) => item.status === 'ACTIVE' && item.initialized) ?? [];
+  useEffect(() => {
+    if (!readyMerchants.length) { setMerchantId(''); return; }
+    if (!readyMerchants.some((item) => item.merchantId === merchantId)) setMerchantId(readyMerchants[0].merchantId);
+  }, [merchantId, readyMerchants]);
+  const merchant = readyMerchants.find((item) => item.merchantId === merchantId) ?? readyMerchants[0];
   const merchantReady = Boolean(merchant?.initialized);
   const businessCodeQuery = useQuery({
-    queryKey: queryKeys.businessCollectionCode,
-    queryFn: fetchBusinessCollectionCode,
-    enabled: merchantReady,
+    queryKey: queryKeys.businessCollectionCode(merchant?.merchantId ?? ''),
+    queryFn: () => fetchBusinessCollectionCode(merchant!.merchantId),
+    enabled: merchantReady && Boolean(merchant?.merchantId),
     staleTime: 30_000
   });
   const personal = personalQuery.data;
@@ -69,6 +75,14 @@ function CollectWorkspace() {
               <button type="button" role="tab" aria-selected={mode === 'personal'} className={mode === 'personal' ? styles.active : ''} onClick={() => setMode('personal')}><UserOutline /> 个人收款</button>
               <button type="button" role="tab" aria-selected={mode === 'merchant'} className={mode === 'merchant' ? styles.active : ''} onClick={() => setMode('merchant')}><ShopbagOutline /> 商户收款</button>
             </div>
+          ) : null}
+
+          {mode === 'merchant' && readyMerchants.length > 1 ? (
+            <label className={styles.storePicker}>收款门店
+              <select value={merchant?.merchantId ?? ''} onChange={(event) => setMerchantId(event.target.value)}>
+                {readyMerchants.map((item) => <option key={item.merchantId} value={item.merchantId}>{item.name} · {item.merchantNo}</option>)}
+              </select>
+            </label>
           ) : null}
 
           <AsyncState loading={currentQuery.isLoading} error={currentQuery.isError ? currentQuery.error : undefined} onRetry={() => void currentQuery.refetch()} loadingText="正在生成安全收款码…">

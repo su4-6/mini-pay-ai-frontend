@@ -10,7 +10,7 @@ import { ProblemNotice } from '../components/ProblemNotice';
 import { ROUTES } from '../constants/routes';
 import { queryKeys } from '../query/keys';
 import { useSession } from '../hooks/useSession';
-import { fetchFundingOrders, submitFunding } from '../services/funding';
+import { fetchFundingOrders, queryBankBalance, submitFunding } from '../services/funding';
 import { fetchBankCards } from '../services/wallet';
 import { sanitizeAmountInput, validateAmountInput, formatFenWithSymbol } from '../utils/money';
 import styles from './feature.module.less';
@@ -22,7 +22,7 @@ function FundingWorkspace(){
   const client=useQueryClient();const [type,setType]=useState<'RECHARGE'|'WITHDRAWAL'>(()=>new URLSearchParams(location.search).get('type')==='WITHDRAWAL'?'WITHDRAWAL':'RECHARGE');const [cardId,setCardId]=useState('');const [amount,setAmount]=useState('');const [password,setPassword]=useState('');
   const cards=useQuery({queryKey:queryKeys.bankCards,queryFn:fetchBankCards,enabled:realNameVerified});const history=useQuery({queryKey:queryKeys.fundingOrders(type),queryFn:()=>fetchFundingOrders(type),enabled:realNameVerified,refetchInterval:(query)=>query.state.data?.items.some(order=>order.status==='PROCESSING')?3000:false});
   const parsed=validateAmountInput(amount);
-  const mutation=useMutation({mutationFn:()=>submitFunding({type,bankCardId:cardId,amountFen:parsed.ok?parsed.fen:0,paymentPassword:password}),onSuccess:async(order)=>{setPassword('');await Promise.all([client.invalidateQueries({queryKey:queryKeys.walletRoot}),client.invalidateQueries({queryKey:queryKeys.fundingRoot})]);Toast.show({icon:'success',content:`${type==='RECHARGE'?'充值':'提现'}${order.status==='SUCCEEDED'?'成功':'已受理'}`})},onError:()=>setPassword('')});
+  const mutation=useMutation({mutationFn:async()=>{const paymentPassword=password;const order=await submitFunding({type,bankCardId:cardId,amountFen:parsed.ok?parsed.fen:0,paymentPassword});let bankBalance:number|undefined;if(type==='WITHDRAWAL'&&order.status==='SUCCEEDED'){try{bankBalance=(await queryBankBalance(cardId,paymentPassword)).availableFen}catch{/* 提现已成功时，余额回查失败不得把资金结果误报为失败。 */}}return{order,bankBalance}},onSuccess:async({order,bankBalance})=>{setPassword('');await Promise.all([client.invalidateQueries({queryKey:queryKeys.walletRoot}),client.invalidateQueries({queryKey:queryKeys.fundingRoot}),client.invalidateQueries({queryKey:queryKeys.bankCards})]);const result=type==='RECHARGE'?'充值成功':order.status==='SUCCEEDED'?(bankBalance==null?'提现已到账，可在银行卡页查询余额':`提现已到账，卡内余额 ${formatFenWithSymbol(bankBalance)}`):'提现已受理';Toast.show({icon:'success',content:result})},onError:()=>setPassword('')});
   const canSubmit=cardId&&parsed.ok&&/^\d{6}$/.test(password);
   return <AppShell title="充值提现" backTo={ROUTES.home}><div className={styles.page}>
     <section className={styles.intro}><h1>沙箱资金操作</h1><p>每笔操作都使用支付密码换取与订单、金额绑定的一次性授权，不会直接修改余额。</p></section>

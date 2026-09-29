@@ -39,7 +39,7 @@ export interface MerchantOnboardingInput {
   longitude: number;
   shopImages: string;
   contactName: string;
-  contactMobile: string;
+  contactMobile?: string;
   contactEmail?: string;
   remark?: string;
   version?: number;
@@ -144,8 +144,11 @@ export async function initializeMerchant(merchantId: string): Promise<void> {
   });
 }
 
-export async function fetchBusinessCollectionCode(): Promise<BusinessCollectionCode> {
-  const raw = asRecord(await httpRequest<unknown>('/api/v1/merchant-center/collection-code', { method: 'GET' }));
+export async function fetchBusinessCollectionCode(merchantId: string): Promise<BusinessCollectionCode> {
+  const raw = asRecord(await httpRequest<unknown>(
+    `/api/v1/merchant-center/collection-code?merchantId=${encodeURIComponent(merchantId)}`,
+    { method: 'GET' }
+  ));
   const merchant = asRecord(raw.merchant);
   const code = asRecord(raw.collectionCode);
   return {

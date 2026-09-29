@@ -7,10 +7,26 @@ vi.mock('./http', () => ({
   buildQuery: vi.fn(() => '')
 }));
 
-import { fetchBankCards } from './wallet';
+import { fetchBankCards, fetchBillPage } from './wallet';
 
 beforeEach(() => {
   httpRequestMock.mockReset();
+});
+
+describe('账单对手方展示', () => {
+  it('优先展示身份服务返回的真实昵称', async () => {
+    httpRequestMock.mockResolvedValueOnce({
+      items: [{
+        billId: 'bill-1', businessType: 'TRANSFER', businessNo: 'T1', direction: 'CREDIT',
+        amountFen: 1000, counterpartyDisplay: '站内付款人', status: 'SUCCEEDED',
+        occurredAt: '2026-09-29T09:00:00Z', counterpartyProfile: { nickname: '小米' }
+      }]
+    });
+
+    await expect(fetchBillPage(null)).resolves.toEqual(expect.objectContaining({
+      items: [expect.objectContaining({ counterpartyDisplay: '小米' })]
+    }));
+  });
 });
 
 describe('银行卡列表契约', () => {

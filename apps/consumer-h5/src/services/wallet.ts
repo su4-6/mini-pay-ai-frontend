@@ -29,13 +29,17 @@ function parseWallet(raw: unknown): WalletSummary {
 
 function parseBill(raw: unknown): WalletBill {
   const record = asRecord(raw);
+  const counterpartyProfile = asRecord(record.counterpartyProfile);
+  const counterpartyDisplay =
+    readString(counterpartyProfile, 'nickname', 'legalNameMasked', 'phoneMasked') ??
+    readString(record, 'counterpartyDisplay', 'counterparty');
   return {
     billId: readString(record, 'billId', 'id') ?? readString(record, 'businessNo') ?? '',
     businessType: readString(record, 'businessType') ?? 'UNKNOWN',
     businessNo: readString(record, 'businessNo') ?? '',
     direction: readString(record, 'direction') ?? 'DEBIT',
     amountFen: readFen(record, 'amountFen', 'amountCent') ?? 0,
-    counterpartyDisplay: readString(record, 'counterpartyDisplay', 'counterparty'),
+    counterpartyDisplay,
     remark: readString(record, 'remark'),
     status: readString(record, 'status') ?? 'UNKNOWN',
     balanceAfterFen: readFen(record, 'balanceAfterFen', 'balanceAfterCent'),

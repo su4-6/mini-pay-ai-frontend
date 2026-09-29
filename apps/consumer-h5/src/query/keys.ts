@@ -13,7 +13,7 @@ export const queryKeys = {
 
   collectionCode: ['collection-code'] as const,
   merchantCenter: ['merchant-center'] as const,
-  businessCollectionCode: ['merchant-center', 'collection-code'] as const,
+  businessCollectionCode: (merchantId: string) => ['merchant-center', 'collection-code', merchantId] as const,
   bankCards: ['bank-cards'] as const,
   profile: ['profile'] as const,
   capabilities: ['capabilities'] as const,
