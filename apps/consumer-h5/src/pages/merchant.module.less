@@ -13,8 +13,28 @@
 .syncHint { margin: 12px 0 0; }
 .form { display: flex; flex-direction: column; gap: 15px; }
 .form label { display: flex; flex-direction: column; gap: 7px; color: #26344d; font-size: 13px; font-weight: 600; }
+.form label small, .upload > small { color: #8793a7; font-size: 11px; font-weight: 400; }
+.form select { min-height: 44px; padding: 0 12px; border: 1px solid #d7dfeb; border-radius: 10px; background: #fff; color: #26344d; font: inherit; }
+.steps { display: flex; align-items: center; justify-content: center; gap: 7px; padding: 4px 0 10px; color: #67758d; font-size: 11px; }
+.steps span { display: flex; align-items: center; gap: 4px; white-space: nowrap; }
+.steps b { display: grid; width: 20px; height: 20px; place-items: center; border-radius: 50%; background: #e7f0ff; color: #1677ff; }
+.steps i { width: 24px; height: 1px; background: #dbe5f3; }
+.typeField { margin: 0; padding: 0; border: 0; }
+.typeField legend, .fieldTitle { margin-bottom: 8px; color: #26344d; font-size: 13px; font-weight: 600; }
+.fieldTitle span { float: right; color: #8995a8; font-size: 11px; font-weight: 400; }
+.typeGrid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.typeGrid button { display: grid; gap: 3px; min-height: 64px; padding: 10px 8px; border: 1px solid #dce5f1; border-radius: 12px; background: #fff; color: #27354d; text-align: left; }
+.typeGrid button[data-active='true'] { border-color: #1677ff; background: #eff6ff; box-shadow: 0 0 0 2px rgb(22 119 255 / 8%); }
+.typeGrid small { color: #8793a7; font-size: 10px; font-weight: 400; line-height: 1.35; }
 .locationRow { display: flex; align-items: center; justify-content: space-between; padding: 10px 12px; border-radius: 12px; background: #f4f8ff; color: #66758d; font-size: 12px; }
-.upload input { width: 100%; color: #607089; font-weight: 400; }
-.upload > span { color: #75839a; font-size: 12px; font-weight: 400; }
+.upload { display: block; }
+.imageGrid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; }
+.imageItem, .uploadButton { position: relative; display: grid; min-height: 82px; place-items: center; align-content: center; gap: 5px; overflow: hidden; border: 1px solid #d9e4f2; border-radius: 12px; background: #f7faff; color: #617089; font-size: 11px; }
+.imageItem button { border: 0; background: transparent; color: #e34850; font-size: 11px; }
+.uploadButton { border-style: dashed !important; color: #1677ff !important; cursor: pointer; }
+.uploadButton b { font-size: 24px; font-weight: 400; line-height: 1; }
+.uploadButton input { position: absolute; width: 1px; height: 1px; opacity: 0; }
+.upload > small { display: block; margin-top: 7px; }
 .portalLink { display: flex; align-items: center; justify-content: space-between; padding: 18px 20px; border: 1px solid #dbe7f7; border-radius: 18px; background: #fff; color: #18243a; text-decoration: none; box-shadow: 0 10px 28px rgba(30, 70, 120, .08); }
 .portalLink span { color: #1677ff; font-size: 12px; }
+@media (max-width: 430px) { .typeGrid { grid-template-columns: 1fr; } .typeGrid button { min-height: 54px; } }

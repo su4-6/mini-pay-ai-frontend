@@ -176,11 +176,12 @@ function ChatWorkspace() {
                 stream.dismissError();
               }}
               onSuggestedAction={(action) => {
-                if (!action.payeeIdentifier || !action.amountFen) return;
-                setTransferDraft({
-                  payeeIdentifier: action.payeeIdentifier,
-                  amountFen: action.amountFen
-                });
+                if (action.payeeIdentifier && action.amountFen) {
+                  setTransferDraft({
+                    payeeIdentifier: action.payeeIdentifier,
+                    amountFen: action.amountFen
+                  });
+                }
                 navigate(ROUTES.transfer);
               }}
             />

@@ -25,14 +25,15 @@ function maskedPayee(identifier?: string): string {
     : identifier;
 }
 
-function isTransferAction(action?: AiSuggestedAction): action is AiSuggestedAction & {
-  amountFen: number;
-  payeeIdentifier: string;
-} {
-  return action?.type === 'TRANSFER'
-    && Number.isInteger(action.amountFen)
-    && (action.amountFen ?? 0) > 0
-    && Boolean(action.payeeIdentifier?.trim());
+function isTransferAction(action?: AiSuggestedAction): boolean {
+  return action?.type === 'TRANSFER';
+}
+
+function needsTransferEntry(message: AiMessage): boolean {
+  return isTransferAction(message.suggestedAction)
+    || (message.role === 'ASSISTANT'
+      && message.content.includes('转账')
+      && (message.content.includes('点击下方按钮') || message.content.includes('人工确认页')));
 }
 
 function roleLabel(role: AiMessage['role']): string {
@@ -76,19 +77,21 @@ export function MessageList({
                   {message.createdAt ? ` · ${formatDateTime(message.createdAt)}` : ''}
                 </div>
                 {message.content}
-                {isTransferAction(message.suggestedAction) ? (
+                {needsTransferEntry(message) ? (
                   <section className={styles.actionCard} aria-label="转账建议">
                     <div>
-                      <span className={styles.actionEyebrow}>待你确认</span>
-                      <strong>{formatFenWithSymbol(message.suggestedAction.amountFen)}</strong>
-                      <span>转给 {maskedPayee(message.suggestedAction.payeeIdentifier)}</span>
+                      <span className={styles.actionEyebrow}>安全转账</span>
+                      {message.suggestedAction?.amountFen ? <strong>{formatFenWithSymbol(message.suggestedAction.amountFen)}</strong> : null}
+                      <span>{message.suggestedAction?.payeeIdentifier
+                        ? `转给 ${maskedPayee(message.suggestedAction.payeeIdentifier)}`
+                        : '进入转账页填写收款人并核对金额'}</span>
                     </div>
                     <button
                       type="button"
                       className={styles.actionButton}
-                      onClick={() => onSuggestedAction?.(message.suggestedAction as AiSuggestedAction)}
+                      onClick={() => onSuggestedAction?.(message.suggestedAction ?? { type: 'TRANSFER' })}
                     >
-                      核对并转账
+                      {message.suggestedAction?.payeeIdentifier && message.suggestedAction.amountFen ? '核对并转账' : '去转账'}
                     </button>
                     <small>米灵不会直接扣款；下一页仍需服务端校验收款人并由你输入支付密码。</small>
                   </section>

@@ -63,11 +63,33 @@ function parseSuggestedAction(raw: unknown): AiSuggestedAction | undefined {
   };
 }
 
+function parseCardPayload(raw: unknown): Record<string, unknown> {
+  if (typeof raw !== 'string') return asRecord(raw);
+  try {
+    return asRecord(JSON.parse(raw));
+  } catch {
+    return {};
+  }
+}
+
+/** 真实 Agent 历史消息使用 cardType/cardPayload；兼容早期 BFF 的 suggestedAction。 */
+function suggestedActionFromMessage(record: Record<string, unknown>): AiSuggestedAction | undefined {
+  const direct = parseSuggestedAction(record.suggestedAction);
+  if (direct) return direct;
+  const cardType = readString(record, 'cardType');
+  const payload = parseCardPayload(record.cardPayload);
+  const transferInput = cardType === 'agent.missing-slots' && readString(payload, 'taskType') === 'transfer';
+  const transferConfirmation = cardType === 'payment.transfer-intent';
+  if (!transferInput && !transferConfirmation) return undefined;
+  const amountFen = readFen(payload, 'amountFen', 'amountCent');
+  return { type: 'TRANSFER', ...(amountFen !== undefined ? { amountFen } : {}) };
+}
+
 /** 导出用于契约测试；页面只通过 listMessages 使用。 */
 export function parseMessage(raw: unknown): AiMessage {
   const record = asRecord(raw);
   const role = (readString(record, 'role') ?? 'ASSISTANT').toUpperCase();
-  const suggestedAction = parseSuggestedAction(record.suggestedAction);
+  const suggestedAction = suggestedActionFromMessage(record);
   return {
     id: readString(record, 'id', 'messageId') ?? '',
     runId: readString(record, 'runId'),

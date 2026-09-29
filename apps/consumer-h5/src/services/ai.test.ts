@@ -52,4 +52,28 @@ describe('米灵结构化建议操作契约', () => {
     });
     expect(message.suggestedAction).toBeUndefined();
   });
+
+  it('把真实历史消息中的待补充转账卡解析为转账入口', () => {
+    const message = parseMessage({
+      id: 'message-3',
+      role: 'ASSISTANT',
+      content: '请填写收款人与金额。',
+      cardType: 'agent.missing-slots',
+      cardPayload: JSON.stringify({ taskType: 'transfer', missingSlots: { recipient: '请输入收款人' } }),
+      createdAt: '2026-09-29T05:00:00Z'
+    });
+    expect(message.suggestedAction).toEqual({ type: 'TRANSFER' });
+  });
+
+  it('把真实转账确认卡中的分金额带到 H5', () => {
+    const message = parseMessage({
+      id: 'message-4',
+      role: 'ASSISTANT',
+      content: '请核对收款人和金额。',
+      cardType: 'payment.transfer-intent',
+      cardPayload: JSON.stringify({ amountCent: 10000, confirmationRequired: true }),
+      createdAt: '2026-09-29T05:00:00Z'
+    });
+    expect(message.suggestedAction).toEqual({ type: 'TRANSFER', amountFen: 10000 });
+  });
 });

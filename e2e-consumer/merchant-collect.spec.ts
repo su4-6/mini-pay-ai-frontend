@@ -43,6 +43,6 @@ test('C端商户中心展示与B端同一条申请和共享钱包说明', async 
   await expect(page.getByText('一个钱包', { exact: false })).toBeVisible();
   await expect(page.getByText('米粒便利店').first()).toBeVisible();
   await expect(page.getByText('已通过')).toBeVisible();
-  await expect(page.getByText('这就是商户 B 端看到的同一条申请记录，无需再次申请。')).toBeVisible();
+  await expect(page.getByText('这是商户平台中的同一条申请记录，无需再次申请。')).toBeVisible();
   await page.screenshot({ path: 'output/playwright/consumer-merchant-mobile.png', fullPage: true });
 });

@@ -12,7 +12,17 @@ export interface ConsumerMerchant {
 
 export interface MerchantOnboarding {
   id: number;
+  merchantType: 'PERSONAL' | 'INDIVIDUAL' | 'ENTERPRISE';
   shopName: string;
+  mccCode?: string;
+  address?: string;
+  latitude?: number;
+  longitude?: number;
+  shopImages?: string;
+  contactName?: string;
+  contactMobile?: string;
+  contactEmail?: string;
+  remark?: string;
   applyStatus: string;
   rejectReason?: string;
   resultantMerchantId?: string;
@@ -21,13 +31,16 @@ export interface MerchantOnboarding {
 }
 
 export interface MerchantOnboardingInput {
+  merchantType: 'PERSONAL' | 'INDIVIDUAL' | 'ENTERPRISE';
   shopName: string;
+  mccCode?: string;
   address: string;
   latitude: number;
   longitude: number;
   shopImages: string;
   contactName: string;
   contactMobile: string;
+  contactEmail?: string;
   remark?: string;
   version?: number;
 }
@@ -54,7 +67,17 @@ function parseOnboarding(raw: unknown): MerchantOnboarding {
   const record = asRecord(raw);
   return {
     id: Number(record.id ?? 0),
+    merchantType: (readString(record, 'merchantType') as MerchantOnboarding['merchantType']) ?? 'PERSONAL',
     shopName: readString(record, 'shopName') ?? '商户申请',
+    mccCode: readString(record, 'mccCode'),
+    address: readString(record, 'address'),
+    latitude: typeof record.latitude === 'number' ? record.latitude : undefined,
+    longitude: typeof record.longitude === 'number' ? record.longitude : undefined,
+    shopImages: readString(record, 'shopImages'),
+    contactName: readString(record, 'contactName'),
+    contactMobile: readString(record, 'contactMobile'),
+    contactEmail: readString(record, 'contactEmail'),
+    remark: readString(record, 'remark'),
     applyStatus: readString(record, 'applyStatus') ?? 'UNKNOWN',
     rejectReason: readString(record, 'rejectReason'),
     resultantMerchantId: readString(record, 'resultantMerchantId'),
@@ -80,15 +103,16 @@ export async function fetchMerchantCenter(): Promise<{
 
 function onboardingBody(input: MerchantOnboardingInput) {
   return {
-    merchantType: 'INDIVIDUAL',
+    merchantType: input.merchantType,
     shopName: input.shopName,
-    mccCode: '5999',
+    mccCode: input.mccCode,
     address: input.address,
     latitude: input.latitude,
     longitude: input.longitude,
     shopImages: input.shopImages,
     contactName: input.contactName,
     contactMobile: input.contactMobile,
+    contactEmail: input.contactEmail,
     remark: input.remark ?? ''
   };
 }
