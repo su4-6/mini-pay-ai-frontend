@@ -26,7 +26,10 @@ export default defineConfig({
   cssMinifierOptions: { charset: 'utf8' },
   define: {
     MINIPAY_PUBLIC_PATH: deployBase,
-    CONSUMER_BFF_PUBLIC_PATH: process.env.CONSUMER_BFF_PUBLIC_PATH || ''
+    CONSUMER_BFF_PUBLIC_PATH: process.env.CONSUMER_BFF_PUBLIC_PATH || '',
+    AMAP_WEB_KEY: process.env.AMAP_KEY || '',
+    AMAP_SECURITY_CODE: process.env.AMAP_SECURITY_CODE || '',
+    AMAP_SERVICE_HOST: process.env.AMAP_SERVICE_HOST || ''
   },
   title: 'MiniPay 钱包',
   favicons: [`${deployBase}minipay-logo.jpg`],

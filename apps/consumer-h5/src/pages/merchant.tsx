@@ -13,6 +13,7 @@ import { queryKeys } from '../query/keys';
 import { fetchMerchantCenter, initializeMerchant, resubmitMerchantOnboarding, submitMerchantOnboarding, uploadMerchantImage } from '../services/merchant';
 import type { MerchantOnboardingInput } from '../services/merchant';
 import { formatDateTime } from '../utils/datetime';
+import { reverseGeocode } from '../utils/amap-loader';
 import styles from './merchant.module.less';
 
 const STATUS: Record<string, string> = { PENDING: '审核中', APPROVED: '已通过', REJECTED: '未通过', SUPPLEMENT: '待补充', ACTIVE: '正常', FROZEN: '已冻结', DISABLED: '已停用' };
@@ -36,6 +37,7 @@ function MerchantWorkspace() {
   const [latitude, setLatitude] = useState<number | null>(null);
   const [longitude, setLongitude] = useState<number | null>(null);
   const [shopImages, setShopImages] = useState<string[]>([]);
+  const [locating, setLocating] = useState(false);
 
   useEffect(() => { if (profile?.phone) setContactMobile(profile.phone); }, [profile?.phone]);
   useEffect(() => {
@@ -57,7 +59,22 @@ function MerchantWorkspace() {
 
   function locate(): void {
     if (!navigator.geolocation) { Toast.show({ content: '当前浏览器不支持定位' }); return; }
-    navigator.geolocation.getCurrentPosition(({ coords }) => { setLatitude(coords.latitude); setLongitude(coords.longitude); }, () => Toast.show({ content: '请允许定位权限后重试' }), { enableHighAccuracy: true, timeout: 10_000 });
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(({ coords }) => {
+      setLatitude(coords.latitude);
+      setLongitude(coords.longitude);
+      void reverseGeocode(coords.longitude, coords.latitude)
+        .then((formattedAddress) => {
+          setAddress(formattedAddress);
+          Toast.show({ content: '已定位并自动填入经营地址' });
+        })
+        .catch(() => Toast.show({ content: '已获取位置，地址解析失败，请手动补充详细地址' }))
+        .finally(() => setLocating(false));
+    }, (error) => {
+      setLocating(false);
+      const message = error.code === error.PERMISSION_DENIED ? '定位权限被拒绝，请在浏览器设置中允许后重试' : '定位失败，请移动到开阔位置后重试';
+      Toast.show({ content: message });
+    }, { enableHighAccuracy: true, timeout: 10_000, maximumAge: 30_000 });
   }
   function submit(): void {
     if (!shopName.trim() || !contactName.trim() || !/^1[3-9]\d{9}$/.test(contactMobile)) { Toast.show({ content: '请完整填写经营名称和联系人' }); return; }
@@ -80,8 +97,8 @@ function MerchantWorkspace() {
         <label>联系人<Input value={contactName} maxLength={64} placeholder="请输入真实联系人" onChange={setContactName} /></label>
         <label>联系电话<Input value={contactMobile} maxLength={11} inputMode="numeric" placeholder="请输入当前登录手机号" onChange={setContactMobile} /><small>为保护隐私，页面只读取到脱敏登录号；提交前请补全当前登录手机号</small></label>
         <label>联系邮箱（选填）<Input value={contactEmail} maxLength={128} type="email" placeholder="用于接收入驻通知" onChange={setContactEmail} /></label>
-        <label>经营地址<Input value={address} maxLength={200} placeholder="请输入详细经营地址" onChange={setAddress} /></label>
-        <div className={styles.locationRow}><span>{locationText}</span><Button size="small" fill="outline" onClick={locate}>获取当前位置</Button></div>
+        <label>经营地址<Input value={address} maxLength={200} placeholder="点击下方定位自动填入，也可手动修改" onChange={setAddress} /></label>
+        <div className={styles.locationRow}><div><strong>{latitude == null ? '定位经营位置' : '当前位置已获取'}</strong><span>{locationText}</span></div><Button size="small" color="primary" fill="outline" loading={locating} disabled={locating} onClick={locate}>{latitude == null ? '定位并填入地址' : '重新定位'}</Button></div>
         <div className={styles.upload}><div className={styles.fieldTitle}>店铺照片 <span>{shopImages.length}/5</span></div><div className={styles.imageGrid}>{shopImages.map((image, index) => <div className={styles.imageItem} key={image}><span>门店照片 {index + 1}</span><button type="button" onClick={() => setShopImages((items) => items.filter((item) => item !== image))}>移除</button></div>)}{shopImages.length < 5 ? <label className={styles.uploadButton}><b>{upload.isPending ? '…' : '+'}</b><span>{upload.isPending ? '上传中' : '上传照片'}</span><input type="file" accept="image/jpeg,image/png,image/webp" disabled={upload.isPending} onChange={(event) => { const file = event.target.files?.[0]; if (file) upload.mutate(file); event.target.value = ''; }} /></label> : null}</div><small>支持 JPG、PNG、WebP；单张不超过 5MB，最多上传 5 张</small></div>
         {upload.isError ? <ProblemNotice error={upload.error} /> : null}<label>申请说明（选填）<TextArea value={remark} maxLength={500} rows={3} placeholder="补充经营情况" onChange={setRemark} /></label>{submitApply.isError ? <ProblemNotice error={submitApply.error} /> : null}<Button block color="primary" size="large" loading={submitApply.isPending} onClick={submit}>{latest ? '补充资料并重新提交' : '提交入驻申请'}</Button>
       </div></Card> : null}
