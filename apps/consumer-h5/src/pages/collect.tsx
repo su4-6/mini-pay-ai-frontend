@@ -1,125 +1,116 @@
+import { useNavigate } from '@umijs/max';
 import { useQuery } from '@tanstack/react-query';
 import { Button, Toast } from 'antd-mobile';
+import { CheckShieldOutline, ShopbagOutline, UserOutline } from 'antd-mobile-icons';
 import { QRCodeSVG } from 'qrcode.react';
+import { useState } from 'react';
 import { AppShell } from '../components/AppShell';
 import { AsyncState } from '../components/AsyncState';
 import { AuthGate } from '../components/AuthGate';
-import { Card } from '../components/Card';
 import { InlineNotice } from '../components/InlineNotice';
+import { ROUTES } from '../constants/routes';
 import { useNow } from '../hooks/useNow';
-import { queryKeys } from '../query/keys';
-import { fetchCollectionCode } from '../services/wallet';
 import { useSession } from '../hooks/useSession';
-import { formatDateTime, isExpired, remainingLabel } from '../utils/datetime';
+import { queryKeys } from '../query/keys';
+import { fetchBusinessCollectionCode, fetchMerchantCenter } from '../services/merchant';
+import { fetchCollectionCode } from '../services/wallet';
+import { isExpired, remainingLabel } from '../utils/datetime';
 import { maskPhone } from '@minipay/shared';
 import styles from './collect.module.less';
 
+type CodeMode = 'personal' | 'merchant';
+
 function CollectWorkspace() {
+  const navigate = useNavigate();
   const { profile } = useSession();
   const now = useNow(1_000);
-  const query = useQuery({
-    queryKey: queryKeys.collectionCode,
-    queryFn: fetchCollectionCode,
+  const [mode, setMode] = useState<CodeMode>('personal');
+  const personalQuery = useQuery({ queryKey: queryKeys.collectionCode, queryFn: fetchCollectionCode, staleTime: 30_000 });
+  const merchantQuery = useQuery({ queryKey: queryKeys.merchantCenter, queryFn: fetchMerchantCenter, staleTime: 20_000 });
+  const merchant = merchantQuery.data?.merchants.find((item) => item.status === 'ACTIVE');
+  const merchantReady = Boolean(merchant?.initialized);
+  const businessCodeQuery = useQuery({
+    queryKey: queryKeys.businessCollectionCode,
+    queryFn: fetchBusinessCollectionCode,
+    enabled: merchantReady,
     staleTime: 30_000
   });
-
-  const code = query.data;
-  const expired = isExpired(code?.expiresAt, now);
+  const personal = personalQuery.data;
+  const business = businessCodeQuery.data;
+  const currentCode = mode === 'merchant' ? business?.code : personal?.code;
+  const expired = mode === 'personal' && isExpired(personal?.expiresAt, now);
+  const currentQuery = mode === 'merchant' ? businessCodeQuery : personalQuery;
 
   async function copyCode(): Promise<void> {
-    if (!code?.code) return;
+    if (!currentCode) return;
     try {
-      await navigator.clipboard.writeText(code.code);
-      Toast.show({ content: '收款码内容已复制' });
+      await navigator.clipboard.writeText(currentCode);
+      Toast.show({ content: '收款内容已复制' });
     } catch {
-      Toast.show({ content: '复制失败，请手动选择文本复制' });
+      Toast.show({ content: '复制失败，请使用系统分享或重新扫码' });
     }
   }
 
   return (
-    <AppShell title="我的收款码" subtitle="对方扫码或复制内容后向该账户转账" showTabBar backTo="/wallet">
-      <div className={styles.qrPage}>
-        <Card>
-          <div className={styles.ownerRow}>
-            <div className={styles.avatar} aria-hidden>
-              {(profile?.displayName ?? 'M').slice(0, 1)}
-            </div>
+    <AppShell title="我的收款码" subtitle="个人转账与商户收款，共用同一个钱包" showTabBar backTo={ROUTES.wallet}>
+      <div className={styles.page}>
+        <section className={styles.hero}>
+          <div className={styles.owner}>
+            <div className={styles.avatar}>{(profile?.displayName ?? 'M').slice(0, 1).toUpperCase()}</div>
             <div>
-              <div className={styles.ownerName}>{profile?.displayName ?? 'MiniPay 用户'}</div>
-              <div className={styles.ownerMeta}>
-                {profile?.phone ? maskPhone(profile.phone) : '未获取到手机号'}
-              </div>
+              <strong>{mode === 'merchant' ? business?.merchantName ?? merchant?.name : profile?.displayName ?? 'MiniPay 用户'}</strong>
+              <span>{mode === 'merchant' ? 'MiniPay 认证商户' : profile?.phone ? maskPhone(profile.phone) : '个人账户'}</span>
             </div>
+            <div className={styles.verified}><CheckShieldOutline /> 安全收款</div>
           </div>
 
-          <AsyncState
-            loading={query.isLoading}
-            error={query.isError ? query.error : undefined}
-            onRetry={() => void query.refetch()}
-            loadingText="正在获取收款码…"
-          >
-            {code && code.code ? (
-              <div>
-                <div className={styles.codeText}>
-                  {code.qrImageUrl ? (
-                    <img
-                      src={code.qrImageUrl}
-                      alt="我的收款二维码"
-                      style={{ width: 220, height: 220, objectFit: 'contain' }}
-                    />
-                  ) : (
-                    <div className={styles.qrWrapper}>
-                      <QRCodeSVG
-                        value={code.code}
-                        size={200}
-                        level="M"
-                        marginSize={2}
-                        title="我的收款二维码"
-                      />
-                    </div>
-                  )}
-                </div>
-                <p className={styles.codeText} style={{ color: '#667085', fontSize: 12 }}>
-                  收款标识
-                </p>
-                <p className={styles.codeValue} aria-label="收款标识">
-                  {code.code}
-                </p>
-                {expired ? (
-                  <InlineNotice tone="warning">该收款码已过期，请刷新获取新的收款码。</InlineNotice>
-                ) : code.expiresAt ? (
-                  <p style={{ marginTop: 8, color: '#667085', fontSize: 12, textAlign: 'center' }}>
-                    {remainingLabel(code.expiresAt, now)} · {formatDateTime(code.expiresAt)} 失效
-                  </p>
-                ) : null}
-                {code.sandboxNotice ? <InlineNotice>{code.sandboxNotice}</InlineNotice> : null}
-                <div className={styles.copyRow}>
-                  <Button fill="outline" onClick={() => void copyCode()}>
-                    复制收款内容
-                  </Button>
-                  <Button color="primary" onClick={() => void query.refetch()}>
-                    {expired ? '刷新收款码' : '重新获取'}
-                  </Button>
-                </div>
-              </div>
-            ) : (
-              <AsyncState empty emptyText="服务端未返回收款码，请稍后重试" />
-            )}
-          </AsyncState>
-        </Card>
+          {merchantReady ? (
+            <div className={styles.switcher} role="tablist" aria-label="收款码类型">
+              <button type="button" role="tab" aria-selected={mode === 'personal'} className={mode === 'personal' ? styles.active : ''} onClick={() => setMode('personal')}><UserOutline /> 个人收款</button>
+              <button type="button" role="tab" aria-selected={mode === 'merchant'} className={mode === 'merchant' ? styles.active : ''} onClick={() => setMode('merchant')}><ShopbagOutline /> 商户收款</button>
+            </div>
+          ) : null}
 
-        <InlineNotice>
-          付款页会优先调用浏览器相机识别商户收款码；设备不支持或拒绝相机权限时，也可以手动粘贴收款码内容。
-        </InlineNotice>
+          <AsyncState loading={currentQuery.isLoading} error={currentQuery.isError ? currentQuery.error : undefined} onRetry={() => void currentQuery.refetch()} loadingText="正在生成安全收款码…">
+            {currentCode ? (
+              <div className={styles.qrStage}>
+                <div className={styles.qrFrame}>
+                  <QRCodeSVG value={currentCode} size={222} level="M" marginSize={2} title={mode === 'merchant' ? '商户收款二维码' : '个人收款二维码'} />
+                  <span className={styles.qrMark}>M</span>
+                </div>
+                <strong className={styles.modeTitle}>{mode === 'merchant' ? '商户收款码' : '个人收款码'}</strong>
+                <p>{mode === 'merchant' ? '对方扫码后进入商户付款确认' : '对方扫码后进入个人转账确认'}</p>
+                {mode === 'personal' && personal?.expiresAt ? (
+                  <div className={`${styles.expiry} ${expired ? styles.expired : ''}`}>{expired ? '已失效，请立即刷新' : remainingLabel(personal.expiresAt, now)}</div>
+                ) : <div className={styles.expiry}>商户码长期有效，可在商户工作台管理</div>}
+              </div>
+            ) : <AsyncState empty emptyText="暂未获取到收款码" />}
+          </AsyncState>
+
+          <div className={styles.actions}>
+            <Button fill="outline" disabled={!currentCode} onClick={() => void copyCode()}>复制收款内容</Button>
+            <Button color="primary" onClick={() => void currentQuery.refetch()}>{expired ? '刷新收款码' : '重新获取'}</Button>
+          </div>
+        </section>
+
+        {!merchantReady ? (
+          <button type="button" className={styles.merchantBanner} onClick={() => navigate(ROUTES.merchant)}>
+            <span className={styles.bannerIcon}><ShopbagOutline /></span>
+            <span><strong>开通商户收款码</strong><small>与个人账户共用余额，申请状态与商户端同步</small></span>
+            <b>去开通 →</b>
+          </button>
+        ) : null}
+
+        <div className={styles.tips}>
+          <div><span>01</span><p><strong>扫码先看收款方</strong>付款前会展示个人或商户名称，请认真核对。</p></div>
+          <div><span>02</span><p><strong>资金仍需确认</strong>扫码不会直接扣款，必须填写金额并输入支付密码。</p></div>
+        </div>
+        {mode === 'personal' && personal?.sandboxNotice ? <InlineNotice>{personal.sandboxNotice}</InlineNotice> : null}
       </div>
     </AppShell>
   );
 }
 
 export default function CollectPage() {
-  return (
-    <AuthGate>
-      <CollectWorkspace />
-    </AuthGate>
-  );
+  return <AuthGate><CollectWorkspace /></AuthGate>;
 }

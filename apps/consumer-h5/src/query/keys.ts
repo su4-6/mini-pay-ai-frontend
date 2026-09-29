@@ -12,6 +12,8 @@ export const queryKeys = {
   billInfinite: ['wallet', 'bills', 'infinite'] as const,
 
   collectionCode: ['collection-code'] as const,
+  merchantCenter: ['merchant-center'] as const,
+  businessCollectionCode: ['merchant-center', 'collection-code'] as const,
   bankCards: ['bank-cards'] as const,
   profile: ['profile'] as const,
   capabilities: ['capabilities'] as const,

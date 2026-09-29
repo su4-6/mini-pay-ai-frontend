@@ -41,6 +41,7 @@ export default defineConfig({
     { path: '/wallet', component: 'wallet' },
     { path: '/bills', component: 'bills' },
     { path: '/collect', component: 'collect' },
+    { path: '/merchant', component: 'merchant' },
     { path: '/transfer', component: 'transfer' },
     { path: '/transfer/result', component: 'transfer-result' },
     { path: '/pay', component: 'pay' },

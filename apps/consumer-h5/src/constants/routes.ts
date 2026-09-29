@@ -6,6 +6,7 @@ export const ROUTES = {
   wallet: '/wallet',
   bills: '/bills',
   collect: '/collect',
+  merchant: '/merchant',
   transfer: '/transfer',
   transferResult: '/transfer/result',
   pay: '/pay',

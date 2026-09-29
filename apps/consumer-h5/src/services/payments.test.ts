@@ -17,6 +17,7 @@ vi.mock('./http', () => ({
 import {
   confirmMerchantPayment,
   isMerchantResolution,
+  isPersonalResolution,
   prepareMerchantPayment,
   scanCollectionCode
 } from './payments';
@@ -62,7 +63,7 @@ describe('扫码付款：识别收款码', () => {
     expect(callAt(0).options.data).toEqual({ merchantToken: 'bare-token-1' });
   });
 
-  it('个人收款码没有 resolutionId，不能走付款流程', async () => {
+  it('个人收款码被识别为站内转账收款方，不误走商户支付单', async () => {
     httpRequestMock.mockResolvedValueOnce({
       type: 'PERSONAL_COLLECTION',
       receiverUserId: 'user-1',
@@ -71,6 +72,7 @@ describe('扫码付款：识别收款码', () => {
     const resolution = await scanCollectionCode('minipay://collect/personal?token=xyz');
 
     expect(isMerchantResolution(resolution)).toBe(false);
+    expect(isPersonalResolution(resolution)).toBe(true);
     await expect(
       prepareMerchantPayment({ resolution, amountFen: 100 })
     ).rejects.toThrow(/商户收款码/);

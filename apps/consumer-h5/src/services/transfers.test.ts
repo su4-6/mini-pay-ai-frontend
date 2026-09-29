@@ -24,7 +24,7 @@ vi.mock('./http', () => ({
   }
 }));
 
-import { confirmTransfer, fetchTransferPage, prepareTransfer } from './transfers';
+import { confirmTransfer, fetchTransferPage, prepareTransfer, prepareTransferFromCollectionCode } from './transfers';
 
 interface RecordedCall {
   url: string;
@@ -42,6 +42,30 @@ beforeEach(() => {
 });
 
 describe('转账 confirm 的授权金额来源', () => {
+  it('个人收款码走专用准备接口，浏览器不提交 receiverUserId', async () => {
+    httpRequestMock.mockResolvedValueOnce({
+      transferIntentId: 'intent-qr',
+      payeeMasked: '小满（张*）',
+      amountFen: 100,
+      expiresAt: '2026-01-01T00:05:00Z'
+    });
+    const intent = await prepareTransferFromCollectionCode({
+      deepLink: 'minipay://collect/personal?token=abc',
+      amountFen: 100,
+      remark: '扫码转账'
+    });
+
+    expect(intent.payeeMasked).toBe('小满（张*）');
+    const request = callAt(0);
+    expect(request.url).toBe('/api/v1/transfers/prepare-from-collection-code');
+    expect(request.options.data).toEqual({
+      deepLink: 'minipay://collect/personal?token=abc',
+      amountFen: 100,
+      remark: '扫码转账'
+    });
+    expect(request.options.data).not.toHaveProperty('receiverUserId');
+  });
+
   it('请求体带 prepare 返回的 amountFen 与支付密码，且只有这两个字段', async () => {
     httpRequestMock.mockResolvedValueOnce({
       transferIntentId: 'intent-1',

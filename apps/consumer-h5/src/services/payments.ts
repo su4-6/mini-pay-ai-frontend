@@ -11,7 +11,7 @@ import { normalizeTransferStatus } from '../utils/transfer-status';
  *   POST /api/v1/payments/{paymentOrderId}/confirm    {amountFen, paymentPassword}
  *
  * 由 consumer-bff → payment-service / identity-service 完成，顺序与约束：
- *   1. scan 解析收款码：商户码返回一次性 `resolutionId`，个人码没有（不能走付款）；
+ *   1. scan 解析收款码：商户码进入支付单，个人码进入站内转账；
  *   2. prepare 创建商户支付单并记住本会话准备的金额；
  *   3. confirm 先用支付密码换「绑定 paymentOrderId + 金额」的一次性授权令牌，再确认支付。
  *
@@ -21,7 +21,7 @@ import { normalizeTransferStatus } from '../utils/transfer-status';
  */
 
 /**
- * 只有商户收款码能走付款流程：上游用它区分「商户码」（带一次性 resolutionId）与「个人码」。
+ * 扫码解析同时识别商户码和个人码；本文件的 prepare/confirm 只负责商户支付单，个人码由 transfers.ts 接管。
  * 支付渠道与账单摘要是由 consumer-bff 固定的服务端常量（余额支付 /「扫码付款」），H5 不参与拼装。
  */
 const MERCHANT_COLLECTION_TYPE = 'MERCHANT_COLLECTION';
@@ -75,6 +75,10 @@ export async function scanCollectionCode(code: string): Promise<CollectionResolu
 
 export function isMerchantResolution(resolution: CollectionResolution | null): boolean {
   return Boolean(resolution && resolution.type === MERCHANT_COLLECTION_TYPE && resolution.resolutionId);
+}
+
+export function isPersonalResolution(resolution: CollectionResolution | null): boolean {
+  return Boolean(resolution && resolution.type === 'PERSONAL_COLLECTION' && resolution.receiverDisplay);
 }
 
 export interface PreparePaymentInput {

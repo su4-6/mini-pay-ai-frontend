@@ -70,6 +70,37 @@ export async function prepareTransfer(input: PrepareTransferInput): Promise<Prep
   return parseIntent(raw, input);
 }
 
+export interface PrepareCollectionTransferInput {
+  deepLink: string;
+  amountFen: number;
+  remark?: string;
+}
+
+/** Personal QR codes use the normal transfer ledger path after server-side code revalidation. */
+export async function prepareTransferFromCollectionCode(
+  input: PrepareCollectionTransferInput
+): Promise<PreparedTransfer> {
+  const raw = await httpRequest<unknown>('/api/v1/transfers/prepare-from-collection-code', {
+    method: 'POST',
+    data: {
+      deepLink: input.deepLink,
+      amountFen: input.amountFen,
+      ...(input.remark ? { remark: input.remark } : {})
+    }
+  });
+  const record = asRecord(raw);
+  const transferIntentId = readString(record, 'transferIntentId', 'intentId');
+  if (!transferIntentId) throw new Error('扫码转账准备响应缺少 transferIntentId');
+  return {
+    transferIntentId,
+    payeeMasked: readString(record, 'payeeMasked', 'payeeDisplay') ?? '个人用户',
+    amountFen: readFen(record, 'amountFen', 'amountCent') ?? input.amountFen,
+    expiresAt: readString(record, 'expiresAt') ?? '',
+    remark: input.remark,
+    payeeIdentifier: 'PERSONAL_COLLECTION_CODE'
+  };
+}
+
 /**
  * 支付授权令牌与 intent 金额绑定，因此 confirm 的金额必须是 prepare 返回的权威值。
  * 这里做本地硬校验：非正整数一律拒绝，绝不允许把 0 或小数发给服务端

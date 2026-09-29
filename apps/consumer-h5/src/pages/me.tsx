@@ -126,6 +126,14 @@ function MeWorkspace() {
       </Card>
 
       <Card title="常用入口" tight>
+        <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.merchant)}>
+          <span className={`${styles.entryIcon} ${styles.iconBlue}`}>商</span>
+          <span className={styles.entryMain}>
+            <span className={styles.entryLabel}>我的商户</span>
+            <span className={styles.entryHint}>申请入驻、查看审核与开通商户收款码</span>
+          </span>
+          <RightOutline aria-hidden />
+        </button>
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.bankCards)}>
           <span className={`${styles.entryIcon} ${styles.iconBlue}`}><BankcardOutline /></span>
           <span className={styles.entryLabel}>我的银行卡</span>

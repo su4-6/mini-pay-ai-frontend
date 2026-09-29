@@ -203,7 +203,7 @@ export interface TransferPage {
  *
  * 两种收款码返回的结构不同，字段全部可选：
  *   - 商户码 `type=MERCHANT_COLLECTION`：带 `resolutionId`（一次性，第二步创建支付单要用）；
- *   - 个人码：只有收款人展示信息，没有 `resolutionId`，不能走付款流程（应改用转账）。
+ *   - 个人码：返回收款人展示信息，由 BFF 再次验码后走站内转账确认链。
  * 金额与状态一律以后端为准，这里只承载展示与流转所需的字段。
  */
 export interface CollectionResolution {
