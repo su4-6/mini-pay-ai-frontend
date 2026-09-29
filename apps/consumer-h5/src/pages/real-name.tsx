@@ -1,3 +1,4 @@
+import { useNavigate } from '@umijs/max';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Input, Toast } from 'antd-mobile';
 import { useEffect, useMemo, useState } from 'react';
@@ -7,15 +8,17 @@ import { InlineNotice } from '../components/InlineNotice';
 import { ProblemNotice } from '../components/ProblemNotice';
 import { ROUTES } from '../constants/routes';
 import { queryKeys } from '../query/keys';
+import { useSession } from '../hooks/useSession';
 import { submitRealName } from '../services/account';
 import styles from './feature.module.less';
 
 function RealNameWorkspace(){
-  const client=useQueryClient();const [legalName,setLegalName]=useState('');const [idNumber,setIdNumber]=useState('');const [file,setFile]=useState<File|null>(null);
+  const client=useQueryClient();const navigate=useNavigate();const {profile}=useSession();const [legalName,setLegalName]=useState('');const [idNumber,setIdNumber]=useState('');const [file,setFile]=useState<File|null>(null);
   const preview=useMemo(()=>file?URL.createObjectURL(file):null,[file]);
   useEffect(()=>()=>{if(preview)URL.revokeObjectURL(preview)},[preview]);
-  const mutation=useMutation({mutationFn:()=>submitRealName({legalName:legalName.trim(),idNumber:idNumber.trim(),faceImage:file!}),onSuccess:async()=>{await Promise.all([client.invalidateQueries({queryKey:queryKeys.session}),client.invalidateQueries({queryKey:queryKeys.capabilities}),client.invalidateQueries({queryKey:queryKeys.profile})]);Toast.show({icon:'success',content:'实名认证已提交'})}});
+  const mutation=useMutation({mutationFn:()=>submitRealName({legalName:legalName.trim(),idNumber:idNumber.trim(),faceImage:file!}),onSuccess:async()=>{await Promise.all([client.refetchQueries({queryKey:queryKeys.session}),client.invalidateQueries({queryKey:queryKeys.capabilities}),client.invalidateQueries({queryKey:queryKeys.profile})]);Toast.show({icon:'success',content:'实名认证已完成'});navigate(ROUTES.me,{replace:true})}});
   const valid=legalName.trim().length>=2&&idNumber.trim().length>=6&&Boolean(file)&&Boolean(file&&file.size<=1_048_576);
+  if(profile?.realNameVerified){return <AppShell title="实名认证" backTo={ROUTES.me}><div className={styles.page}><section className={styles.intro}><h1>身份已认证</h1><p>你的沙箱身份已经核验，无需重复提交。资金功能将直接使用当前认证状态。</p></section><section className={styles.card}><div className={styles.success}>认证状态正常，已可使用转账、收付款与银行卡功能。</div><div className={styles.actions}><Button block color="primary" size="large" onClick={()=>navigate(ROUTES.me,{replace:true})}>返回我的</Button><Button block fill="outline" onClick={()=>navigate(ROUTES.home,{replace:true})}>回到首页</Button></div></section></div></AppShell>}
   return <AppShell title="实名认证" backTo={ROUTES.me}><div className={styles.page}>
     <section className={styles.intro}><h1>完成实名认证</h1><p>用于转账、收付款和银行卡能力。当前线上为演示沙箱，请只使用测试信息，不要提交真实证件。</p></section>
     {mutation.data?.status==='VERIFIED'?<div className={styles.success}>认证成功：{mutation.data.legalNameMasked||'身份已核验'}。现在可以继续设置支付密码并使用资金功能。</div>:null}

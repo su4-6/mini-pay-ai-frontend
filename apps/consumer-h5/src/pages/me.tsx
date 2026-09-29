@@ -4,6 +4,8 @@ import { Button, Dialog, Toast } from 'antd-mobile';
 import {
   BankcardOutline,
   BillOutline,
+  CheckShieldOutline,
+  LockOutline,
   PayCircleOutline,
   ReceivePaymentOutline,
   RightOutline,
@@ -90,7 +92,7 @@ function MeWorkspace() {
         </button>
 
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.security)}>
-          <span className={`${styles.entryIcon} ${styles.iconViolet}`}>安</span>
+          <span className={`${styles.entryIcon} ${styles.iconViolet}`}><LockOutline /></span>
           <span className={styles.entryMain}>
             <span className={styles.entryLabel}>账户安全</span>
             <span className={styles.entryHint}>手机号与支付密码管理</span>
@@ -102,10 +104,10 @@ function MeWorkspace() {
         </button>
 
         <button type="button" className={styles.entry} onClick={() => navigate(ROUTES.realName)}>
-          <span className={`${styles.entryIcon} ${styles.iconGreen}`}>证</span>
+          <span className={`${styles.entryIcon} ${styles.iconGreen}`}><CheckShieldOutline /></span>
           <span className={styles.entryMain}>
             <span className={styles.entryLabel}>实名状态</span>
-            <span className={styles.entryHint}>资金操作前需要完成沙箱实名认证</span>
+            <span className={styles.entryHint}>{profile?.realNameVerified ? '身份已核验，无需重复认证' : '资金操作前需要完成沙箱实名认证'}</span>
           </span>
           <span className={styles.entryValue}>
             {REAL_NAME_STATUS_TEXT[profile?.realNameStatus ?? 'UNVERIFIED'] ?? profile?.realNameStatus ?? '--'}

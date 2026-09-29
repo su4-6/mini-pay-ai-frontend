@@ -47,6 +47,7 @@ function WalletWorkspace() {
     <AppShell
       title="钱包"
       subtitle="余额与账单以服务端为准，金额单位为人民币分"
+      backTo={ROUTES.home}
       showTabBar
     >
       {!payPasswordSet ? (

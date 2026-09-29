@@ -1,6 +1,7 @@
 import { useNavigate } from '@umijs/max';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { Button, Dialog, Input, Toast } from 'antd-mobile';
+import { ScanningOutline } from 'antd-mobile-icons';
 import { useState } from 'react';
 import type { CSSProperties } from 'react';
 import { AmountText } from '../components/AmountText';
@@ -210,7 +211,7 @@ function PayWorkspace() {
 
   if (result) {
     return (
-      <AppShell title="付款结果" subtitle="结果以后端支付单为准" backTo={ROUTES.wallet} showTabBar={false}>
+      <AppShell title="付款结果" subtitle="结果以后端支付单为准" backTo={ROUTES.home} showTabBar={false}>
         <div className={styles.summary} aria-label="付款结果">
           <span className={styles.summaryPayee}>
             {result.status === 'SUCCEEDED' || result.status === 'SUCCESS' ? '付款成功' : '付款处理中'}
@@ -231,8 +232,8 @@ function PayWorkspace() {
         </Card>
 
         <div className={styles.form} style={{ marginTop: 12 }}>
-          <Button block color="primary" size="large" onClick={() => navigate(ROUTES.wallet)}>
-            返回钱包查看余额
+          <Button block color="primary" size="large" onClick={() => navigate(ROUTES.home, { replace: true })}>
+            完成并返回首页
           </Button>
           <Button block fill="outline" onClick={resetFlow}>
             再付一笔
@@ -250,11 +251,14 @@ function PayWorkspace() {
           ? '扫一扫识别个人或商户收款码，再核对收款方与金额'
           : '请核对收款方与金额，确认后将立即扣款'
       }
-      backTo={step === 'confirm' ? undefined : ROUTES.wallet}
+      backTo={step === 'confirm' ? undefined : ROUTES.home}
       showTabBar={false}
     >
       {step === 'form' ? (
-        <Card>
+        <><section className={styles.scanHero}>
+          <ScanningOutline className={styles.scanHeroIcon} />
+          <div><strong>扫描 MiniPay 收款码</strong><span>支持个人转账码和商户收款码</span></div>
+        </section><Card>
           <div className={styles.form}>
             <div className={styles.field}>
               <label className={styles.fieldLabel} htmlFor="pay-code">
@@ -363,7 +367,7 @@ function PayWorkspace() {
               个人收款码不会创建商户订单，会按同一钱包的站内转账规则入账。
             </p>
           </div>
-        </Card>
+        </Card></>
       ) : null}
 
       {step === 'confirm' && activePrepared ? (

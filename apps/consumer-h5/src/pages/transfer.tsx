@@ -166,7 +166,7 @@ function TransferWorkspace() {
           ? '先由服务端校验收款人并生成转账意图，再输入支付密码确认'
           : '请核对收款方与金额，确认后将立即扣款'
       }
-      backTo={step === 'confirm' ? undefined : '/wallet'}
+      backTo={step === 'confirm' ? undefined : ROUTES.home}
       showTabBar={false}
     >
       {step === 'form' ? (

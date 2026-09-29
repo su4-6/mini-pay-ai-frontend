@@ -28,7 +28,7 @@ function TransfersWorkspace() {
   const items = query.data?.pages.flatMap((page) => page.items) ?? [];
 
   return (
-    <AppShell title="转账记录" subtitle="点击可查看详情并重新查询处理中的转账" backTo="/wallet">
+    <AppShell title="转账记录" subtitle="点击可查看详情并重新查询处理中的转账" backTo={ROUTES.home}>
       <Card tight>
         <AsyncState
           loading={query.isLoading}

@@ -52,7 +52,7 @@ function CollectWorkspace() {
   }
 
   return (
-    <AppShell title="我的收款码" subtitle="个人转账与商户收款，共用同一个钱包" showTabBar backTo={ROUTES.wallet}>
+    <AppShell title="我的收款码" subtitle="个人转账与商户收款，共用同一个钱包" showTabBar backTo={ROUTES.home}>
       <div className={styles.page}>
         <section className={styles.hero}>
           <div className={styles.owner}>
