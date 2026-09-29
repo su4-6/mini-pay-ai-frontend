@@ -25,6 +25,7 @@ export interface Account {
   status: string;
   credentialType: string;
   onboardingStatus: string;
+  consumerOpened: boolean;
   loginPasswordSet: boolean;
   paymentPasswordSet: boolean;
   roles: Role[];
@@ -293,6 +294,45 @@ export const adminApi = {
     request<Page<LoginAudit>>(`/api/v1/admin/login-audits?${params(q)}`),
   systemHealth: () => request<SystemHealth>('/api/v1/admin/system-health')
 };
+
+export interface SaveBackofficeAccountInput {
+  mobile: string;
+  displayName: string;
+  role: string;
+  reason: string;
+}
+
+export interface SaveBackofficeAccountResult {
+  account: Account;
+  reusedIdentity: boolean;
+  roleChanged: boolean;
+}
+
+/**
+ * A mobile number owns one identity. If the consumer identity already exists,
+ * grant the selected backoffice role instead of attempting a duplicate account.
+ */
+export async function saveBackofficeAccount(
+  input: SaveBackofficeAccountInput
+): Promise<SaveBackofficeAccountResult> {
+  const matches = await adminApi.accounts({ page: 1, size: 2, mobile: input.mobile });
+  const existing = matches.items[0];
+  if (!existing) {
+    return {
+      account: await adminApi.createAccount(input),
+      reusedIdentity: false,
+      roleChanged: true
+    };
+  }
+  if (existing.roles.includes(input.role as Role)) {
+    return { account: existing, reusedIdentity: true, roleChanged: false };
+  }
+  return {
+    account: await adminApi.role(existing, input.role, input.reason),
+    reusedIdentity: true,
+    roleChanged: true
+  };
+}
 async function mutate<T>(
   url: string,
   method: string,

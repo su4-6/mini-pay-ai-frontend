@@ -1,9 +1,10 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
-import { adminApi, type Account } from './admin';
+import { adminApi, saveBackofficeAccount, type Account } from './admin';
 
 const account: Account = {
   userId: '0198a651-5b55-7000-8000-000000000001', minipayNo: 'M10001', displayName: '测试账号',
   status: 'ACTIVE', credentialType: 'PASSWORD', onboardingStatus: 'COMPLETED',
+  consumerOpened: true,
   loginPasswordSet: true, paymentPasswordSet: true, roles: ['merchant_owner'], version: 7,
   createdAt: '2026-08-10T00:00:00Z'
 };
@@ -93,5 +94,29 @@ describe('admin API contracts', () => {
     expect(fetchMock.mock.calls[1]?.[0]).toBe('/api/v1/admin/me/password');
     expect(JSON.parse(String((fetchMock.mock.calls[1]?.[1] as RequestInit).body)))
       .toEqual({newPassword:'AdminSecure123'});
+  });
+
+  it('reuses an existing consumer identity when granting a backoffice role', async () => {
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(new Response(JSON.stringify({items:[account],page:1,size:2,total:1}), {
+        status: 200, headers: {'Content-Type':'application/json'}
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({headerName:'X-CSRF-TOKEN',token:'csrf'}), {
+        status: 200, headers: {'Content-Type':'application/json'}
+      }))
+      .mockResolvedValueOnce(new Response(JSON.stringify({...account,roles:['system_auditor'],version:8}), {
+        status: 200, headers: {'Content-Type':'application/json'}
+      }));
+    vi.stubGlobal('fetch', fetchMock);
+
+    const result = await saveBackofficeAccount({
+      mobile:'13900000009', displayName:'不应覆盖现有名称',
+      role:'system_auditor', reason:'安全审计授权'
+    });
+
+    expect(result.reusedIdentity).toBe(true);
+    expect(fetchMock.mock.calls[0]?.[0]).toContain('mobile=13900000009');
+    expect(fetchMock.mock.calls[2]?.[0]).toBe(`/api/v1/admin/accounts/${account.userId}/role`);
+    expect(fetchMock).toHaveBeenCalledTimes(3);
   });
 });
