@@ -16,13 +16,14 @@ export const MERCHANT_CODE_SCHEME = 'minipay://collect/merchant';
 
 /** 裸令牌：`mc_` + 一串 URL 安全字符（与后端签发的格式一致）。 */
 const BARE_TOKEN = /^mc_[A-Za-z0-9_-]{8,}$/;
+const COLLECTION_LINK = /^minipay:\/\/collect\/(?:personal|merchant)\?[^\s]+$/i;
 
 /** 深链或链接里的 `token` 查询参数。 */
 const TOKEN_PARAM = /[?&]token=([^&#\s]+)/;
 
 /** 相机扫码不可用时的统一提示（UI 与文案只此一处）。 */
 export const CAMERA_UNSUPPORTED_HINT =
-  '当前浏览器不支持相机扫码（需要 HTTPS + BarcodeDetector），请改为粘贴收款码内容。';
+  '当前浏览器无法调用摄像头，请粘贴完整的 MiniPay 收款码内容。';
 
 function decodeOnce(value: string): string {
   try {
@@ -42,16 +43,17 @@ function decodeOnce(value: string): string {
 export function extractPaymentCode(raw: string | null | undefined): string | null {
   const text = (raw ?? '').trim();
   if (!text) return null;
-  if (BARE_TOKEN.test(text)) return text;
+  if (BARE_TOKEN.test(text) || COLLECTION_LINK.test(text)) return text;
 
   const matched = TOKEN_PARAM.exec(text);
   if (!matched) return null;
   const token = decodeOnce(matched[1]).trim();
-  return BARE_TOKEN.test(token) ? token : null;
+  return BARE_TOKEN.test(token) ? text : null;
 }
 
 /**
- * 当前环境是否具备相机扫码能力：HTTPS 下的 `getUserMedia` + 浏览器自带 `BarcodeDetector`。
+ * 当前环境是否具备相机扫码能力。二维码解码由 @zxing/browser 完成，避免依赖
+ * Chromium/Safari 覆盖不一致的 BarcodeDetector。
  *
  * 不引入任何解码库是刻意的：演示端只在移动端 Chrome / 新版 Safari 上扫码，
  * 这两个环境都自带 `BarcodeDetector`；不支持的浏览器退化为「粘贴收款码」即可。
@@ -59,6 +61,5 @@ export function extractPaymentCode(raw: string | null | undefined): string | nul
 export function isCameraScanSupported(): boolean {
   if (typeof navigator === 'undefined' || typeof window === 'undefined') return false;
   const hasCamera = typeof navigator.mediaDevices?.getUserMedia === 'function';
-  const Detector = (window as { BarcodeDetector?: unknown }).BarcodeDetector;
-  return hasCamera && typeof Detector === 'function';
+  return hasCamera;
 }

@@ -2,7 +2,6 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { App as AntdApp, ConfigProvider } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import type { ReactNode } from 'react';
-import { createRequestId } from '@minipay/shared';
 import 'dayjs/locale/zh-cn';
 import dayjs from 'dayjs';
 import { minipayDesktopTheme } from '@minipay/ui-desktop';
@@ -23,14 +22,5 @@ export function rootContainer(container: ReactNode) {
 
 export const request = {
   timeout: 10_000,
-  requestInterceptors: [
-    (url: string, options: RequestInit) => [
-      url,
-      {
-        ...options,
-        credentials: 'include',
-        headers: { ...options.headers, 'X-Request-Id': createRequestId() }
-      }
-    ]
-  ]
+  withCredentials: true
 };

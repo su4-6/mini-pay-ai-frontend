@@ -1,4 +1,5 @@
 import { Button, Toast } from 'antd-mobile';
+import { BrowserQRCodeReader } from '@zxing/browser';
 import { useEffect, useRef, useState } from 'react';
 import { CAMERA_UNSUPPORTED_HINT, isCameraScanSupported } from '../utils/scan';
 import styles from './scan-code.module.less';
@@ -10,13 +11,8 @@ export interface ScanCodeButtonProps {
 }
 
 /** 浏览器自带条码识别 API 的最小类型（TS 标准库未收录）。 */
-interface BarcodeDetectorLike {
-  detect: (source: HTMLVideoElement) => Promise<Array<{ rawValue?: string }>>;
-}
-type BarcodeDetectorCtor = new (options?: { formats?: string[] }) => BarcodeDetectorLike;
-
 /**
- * 相机扫码按钮：复用浏览器自带的 `BarcodeDetector`，不引入任何解码依赖。
+ * 相机扫码按钮：使用 ZXing 解码视频帧，覆盖不提供 BarcodeDetector 的移动浏览器。
  *
  * 隐私与资源：只有用户点开才申请摄像头；识别到第一帧或关闭浮层时立刻
  * `stop()` 所有轨道，绝不让摄像头在后台常驻。不支持的浏览器退化为提示文案，
@@ -36,13 +32,11 @@ export function ScanCodeButton({ onDetected, disabled }: ScanCodeButtonProps) {
   useEffect(() => {
     if (!open) return undefined;
     let closed = false;
-    let timer: ReturnType<typeof setInterval> | undefined;
+    let controls: { stop: () => void } | undefined;
 
     const release = () => {
-      if (timer) {
-        clearInterval(timer);
-        timer = undefined;
-      }
+      controls?.stop();
+      controls = undefined;
       streamRef.current?.getTracks().forEach((track) => track.stop());
       streamRef.current = null;
     };
@@ -63,23 +57,15 @@ export function ScanCodeButton({ onDetected, disabled }: ScanCodeButtonProps) {
         video.srcObject = stream;
         await video.play();
 
-        const Detector = (window as { BarcodeDetector?: BarcodeDetectorCtor }).BarcodeDetector;
-        if (!Detector) return;
-        const detector = new Detector({ formats: ['qr_code'] });
-        timer = setInterval(() => {
-          void detector
-            .detect(video)
-            .then((codes) => {
-              const value = codes.find((code) => code.rawValue)?.rawValue;
+        const reader = new BrowserQRCodeReader(undefined, { delayBetweenScanAttempts: 180 });
+        controls = await reader.decodeFromVideoElement(video, (result) => {
+              const value = result?.getText();
               if (!value || closed) return;
               closed = true;
               release();
               setOpen(false);
               onDetectedRef.current(value);
-            })
-            // 单帧识别失败（画面模糊等）属正常情况，继续下一帧即可。
-            .catch(() => undefined);
-        }, 350);
+        });
       } catch (cause) {
         if (closed) return;
         const denied = cause instanceof Error && cause.name === 'NotAllowedError';
@@ -124,13 +110,13 @@ export function ScanCodeButton({ onDetected, disabled }: ScanCodeButtonProps) {
           setOpen(true);
         }}
       >
-        扫一扫商户收款码
+        打开相机扫码
       </Button>
 
       {open ? (
         <div className={styles.overlay} role="dialog" aria-label="相机扫码">
           <video ref={videoRef} className={styles.video} playsInline muted />
-          <p className={styles.hint}>{error ?? '把商户收款码放进取景框，识别成功会自动识别收款方'}</p>
+          <p className={styles.hint}>{error ?? '把个人或商户收款码完整放入取景框，识别后会自动关闭'}</p>
           <Button block color="primary" onClick={() => setOpen(false)}>
             关闭
           </Button>

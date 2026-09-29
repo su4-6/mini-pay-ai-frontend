@@ -266,16 +266,13 @@ function PayWorkspace() {
               </label>
               <Input
                 id="pay-code"
-                placeholder="扫码或粘贴 minipay://collect/..."
+                placeholder="粘贴完整的 MiniPay 收款码内容"
                 value={codeInput}
                 onChange={(value) => {
                   setCodeInput(value);
                   setFormError(null);
                 }}
               />
-              <p className={styles.stepHint}>
-                个人码走站内转账，商户码走商户付款；两种流程都需要核对金额并输入支付密码。
-              </p>
               <ScanCodeButton
                 disabled={scanMutation.isPending}
                 onDetected={(text) => handleScan(text)}
@@ -287,8 +284,9 @@ function PayWorkspace() {
                 disabled={!codeInput.trim()}
                 onClick={() => handleScan()}
               >
-                识别收款方
+                校验并识别收款方
               </Button>
+              <p className={styles.stepHint}>支持个人转账码和商户收款码。相机识别失败时，可从收款码页面复制完整内容粘贴到这里。</p>
             </div>
 
             {scanMutation.isError ? <ProblemNotice error={scanMutation.error} /> : null}

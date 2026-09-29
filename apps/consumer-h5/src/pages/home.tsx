@@ -1,5 +1,6 @@
 import { Link } from '@umijs/max';
 import { useQuery } from '@tanstack/react-query';
+import { useState } from 'react';
 import {
   AddCircleOutline,
   BankcardOutline,
@@ -22,11 +23,13 @@ import { formatDateTime } from '../utils/datetime';
 import { formatFenWithSymbol } from '../utils/money';
 import styles from './home.module.less';
 
-const actions = [
+const primaryActions = [
   { label: '扫一扫', path: ROUTES.pay, Icon: ScanningOutline, tone: 'violet' },
   { label: '收款', path: ROUTES.collect, Icon: ReceivePaymentOutline, tone: 'cyan' },
-  { label: '转账', path: ROUTES.transfer, Icon: PayCircleOutline, tone: 'blue' },
-  { label: '付款', path: ROUTES.pay, Icon: BillOutline, tone: 'indigo' },
+  { label: '转账', path: ROUTES.transfer, Icon: PayCircleOutline, tone: 'blue' }
+] as const;
+
+const actions = [
   { label: '充值', path: `${ROUTES.funding}?type=RECHARGE`, Icon: AddCircleOutline, tone: 'green' },
   { label: '提现', path: `${ROUTES.funding}?type=WITHDRAWAL`, Icon: MinusCircleOutline, tone: 'orange' },
   { label: '银行卡', path: ROUTES.bankCards, Icon: BankcardOutline, tone: 'blue' },
@@ -34,6 +37,7 @@ const actions = [
 ] as const;
 
 function HomeWorkspace() {
+  const [showBalance, setShowBalance] = useState(false);
   const { profile } = useSession();
   const needsRealName = !profile?.realNameVerified;
   const needsPayPassword = !profile?.payPasswordSet;
@@ -58,24 +62,12 @@ function HomeWorkspace() {
             {(profile?.displayName || 'M').slice(0, 1).toUpperCase()}
           </Link>
         </div>
-        <p className={styles.balanceLabel}>可用余额（元）</p>
-        <p className={styles.balanceValue}>
-          {needsRealName
-            ? '待开通'
-            : wallet.isLoading
-              ? '—'
-              : wallet.isError
-                ? '加载失败'
-                : formatFenWithSymbol(wallet.data?.availableFen ?? 0)}
-        </p>
-        <div className={styles.balanceMeta}>
-          <span>{needsRealName ? '完成实名后开通钱包' : `冻结 ${formatFenWithSymbol(wallet.data?.frozenFen ?? 0)}`}</span>
-          <Link to={ROUTES.wallet} className={styles.detailLink}>钱包详情 <RightOutline /></Link>
-        </div>
-        <div className={styles.heroStats}>
-          <div><span>账户状态</span><strong>{needsRealName ? '待实名' : '运行正常'}</strong></div>
-          <i aria-hidden />
-          <div><span>安全保护</span><strong>{needsPayPassword ? '待完善' : '已开启'}</strong></div>
+        <div className={styles.primaryGrid}>
+          {primaryActions.map(({ label, path, Icon }) => (
+            <Link key={label} to={path} className={styles.primaryAction}>
+              <Icon /><strong>{label}</strong>
+            </Link>
+          ))}
         </div>
       </section>
 
@@ -94,8 +86,22 @@ function HomeWorkspace() {
         </div>
       ) : null}
 
+      <section className={styles.assetCard}>
+        <div>
+          <span className={styles.assetLabel}>我的钱包</span>
+          <strong className={styles.assetValue}>
+            {needsRealName ? '待开通' : showBalance ? (wallet.isLoading ? '加载中' : wallet.isError ? '暂不可用' : formatFenWithSymbol(wallet.data?.availableFen ?? 0)) : '••••••'}
+          </strong>
+          <small>{needsRealName ? '完成实名后开通' : '可用余额'}</small>
+        </div>
+        <div className={styles.assetActions}>
+          {!needsRealName ? <button type="button" onClick={() => setShowBalance((value) => !value)}>{showBalance ? '隐藏金额' : '查看金额'}</button> : null}
+          <Link to={ROUTES.wallet}>钱包详情 <RightOutline /></Link>
+        </div>
+      </section>
+
       <section className={styles.section}>
-        <div className={styles.sectionHeader}><h2>常用服务</h2></div>
+        <div className={styles.sectionHeader}><h2>更多服务</h2></div>
         <div className={styles.actionGrid}>
           {actions.map(({ label, path, Icon, tone }) => (
             <Link key={label} to={path} className={styles.actionItem}>
