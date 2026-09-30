@@ -13,7 +13,7 @@ import { queryKeys } from '../query/keys';
 import { fetchMerchantCenter, initializeMerchant, resubmitMerchantOnboarding, submitMerchantOnboarding, uploadMerchantImage } from '../services/merchant';
 import type { MerchantOnboardingInput } from '../services/merchant';
 import { formatDateTime } from '../utils/datetime';
-import { reverseGeocode } from '../utils/amap-loader';
+import { reverseGeocode } from '../services/location';
 import styles from './merchant.module.less';
 
 const STATUS: Record<string, string> = { PENDING: '审核中', APPROVED: '已通过', REJECTED: '未通过', SUPPLEMENT: '待补充', ACTIVE: '正常', FROZEN: '已冻结', DISABLED: '已停用' };

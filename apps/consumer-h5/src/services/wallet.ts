@@ -29,19 +29,23 @@ function parseWallet(raw: unknown): WalletSummary {
 
 function parseBill(raw: unknown): WalletBill {
   const record = asRecord(raw);
+  const businessType = readString(record, 'businessType') ?? 'UNKNOWN';
+  const status = readString(record, 'status') ?? 'UNKNOWN';
   const counterpartyProfile = asRecord(record.counterpartyProfile);
   const counterpartyDisplay =
     readString(counterpartyProfile, 'nickname', 'legalNameMasked', 'phoneMasked') ??
     readString(record, 'counterpartyDisplay', 'counterparty');
   return {
     billId: readString(record, 'billId', 'id') ?? readString(record, 'businessNo') ?? '',
-    businessType: readString(record, 'businessType') ?? 'UNKNOWN',
+    businessType,
     businessNo: readString(record, 'businessNo') ?? '',
     direction: readString(record, 'direction') ?? 'DEBIT',
     amountFen: readFen(record, 'amountFen', 'amountCent') ?? 0,
     counterpartyDisplay,
-    remark: readString(record, 'remark'),
-    status: readString(record, 'status') ?? 'UNKNOWN',
+    remark: businessType === 'WITHDRAWAL'
+      ? status === 'SUCCEEDED' ? '已到账银行卡' : status === 'FAILED' ? '提现失败，资金已冲正' : '银行处理中'
+      : readString(record, 'remark'),
+    status,
     balanceAfterFen: readFen(record, 'balanceAfterFen', 'balanceAfterCent'),
     failureCode: readString(record, 'failureCode'),
     occurredAt: readString(record, 'occurredAt', 'createdAt') ?? ''

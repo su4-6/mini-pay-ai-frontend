@@ -36,9 +36,9 @@ export async function queryBankBalance(cardId: string, paymentPassword: string):
     { method: 'POST', headers: headers(), data: { paymentPassword } }
   ));
   return {
-    availableFen: readFen(record, 'availableFen', 'availableCent', 'balanceCent') ?? 0,
+    availableFen: readFen(record, 'availableFen', 'availableCent', 'availableAmountCent', 'balanceCent') ?? 0,
     currency: readString(record, 'currency') ?? 'CNY',
-    updatedAt: readString(record, 'updatedAt')
+    updatedAt: readString(record, 'updatedAt', 'asOf')
   };
 }
 

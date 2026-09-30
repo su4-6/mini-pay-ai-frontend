@@ -27,6 +27,20 @@ describe('账单对手方展示', () => {
       items: [expect.objectContaining({ counterpartyDisplay: '小米' })]
     }));
   });
+
+  it('按权威状态展示提现结果，不沿用创建时的处理中备注', async () => {
+    httpRequestMock.mockResolvedValueOnce({
+      items: [{
+        billId: 'bill-withdrawal', businessType: 'WITHDRAWAL', businessNo: 'W1', direction: 'EXPENSE',
+        amountCent: 12_300, counterpartyDisplay: '绑定银行卡', remark: '银行卡提现处理中',
+        status: 'SUCCEEDED', occurredAt: '2026-09-29T13:39:40Z'
+      }]
+    });
+
+    await expect(fetchBillPage(null)).resolves.toEqual(expect.objectContaining({
+      items: [expect.objectContaining({ remark: '已到账银行卡', status: 'SUCCEEDED' })]
+    }));
+  });
 });
 
 describe('银行卡列表契约', () => {

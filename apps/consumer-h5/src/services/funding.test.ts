@@ -58,11 +58,16 @@ describe('银行卡与资金操作契约', () => {
   });
 
   it('余额查询只把支付密码交给同源 BFF，并携带幂等键', async () => {
-    httpRequestMock.mockResolvedValueOnce({ availableCent: 12_345, currency: 'CNY' });
+    httpRequestMock.mockResolvedValueOnce({
+      availableAmountCent: 12_345,
+      currency: 'CNY',
+      asOf: '2026-09-29T13:43:14Z'
+    });
 
     const balance = await queryBankBalance('card/1', '135790');
 
     expect(balance.availableFen).toBe(12_345);
+    expect(balance.updatedAt).toBe('2026-09-29T13:43:14Z');
     const request = callAt(0);
     expect(request.url).toBe('/api/v1/bank-cards/card%2F1/balance-queries');
     expect(request.options.data).toEqual({ paymentPassword: '135790' });
