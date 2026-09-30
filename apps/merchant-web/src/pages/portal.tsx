@@ -79,7 +79,7 @@ export default function MerchantPortalPage() {
   return <div className={`${styles.shell} minipay-desktop-shell`} style={{ '--merchant-sidebar-width': collapsed ? '72px' : '232px' } as React.CSSProperties}>
     <aside className={`${styles.sidebar} minipay-desktop-sidebar`}><div className={styles.brand}><img src={`${MINIPAY_PUBLIC_PATH}minipay-logo.jpg`} alt="" />{!collapsed && <div><strong>minipay</strong><small>商户开放平台</small></div>}</div>{navigation()}{!collapsed && <div className={styles.sideFoot}>MiniPay 商户开放平台</div>}</aside>
     <Drawer className={styles.mobileDrawer} placement="left" width={276} title="商户开放平台导航" open={mobileMenuOpen} onClose={()=>setMobileMenuOpen(false)}><div className={styles.mobileBrand}><img src={`${MINIPAY_PUBLIC_PATH}minipay-logo.jpg`} alt="MiniPay" /><div><strong>minipay</strong><small>商户开放平台</small></div></div>{navigation(true)}</Drawer>
-    <div className={styles.workspace}><header className={`${styles.topbar} minipay-desktop-header`}><div className={styles.topStart}><Button className={styles.mobileMenuButton} type="text" aria-label="打开商户端导航" icon={<MenuOutlined />} onClick={()=>setMobileMenuOpen(true)} /><Button className={styles.collapse} type="text" onClick={() => setCollapsed(value => !value)}>{collapsed ? '»' : '«'}</Button><Button type="text" onClick={() => void queryClient.invalidateQueries()}>刷新</Button></div><div className={styles.topEnd}>{selected && <><span className={styles.muted} style={{ fontSize: 12 }} title="登录账号手机号，为名下所有商户/应用的归属身份">账号 {maskPhone(selected.contactMobile)}</span><Select className={styles.merchantPicker} value={selected.merchantId} onChange={value => { setSelectedId(value); localStorage.setItem('minipay-selected-merchant', value); }} options={merchants.data?.map(item => ({ label: `${item.name}（${item.merchantNo}）`, value: item.merchantId }))} /></>}<Dropdown menu={accountMenu} trigger={['click']}><Button type="text"><span className={styles.avatar}>{selected?.name.slice(0, 1) ?? '商'}</span>{!collapsed && <span>{selected?.name ?? '商家账号'}</span>}</Button></Dropdown></div></header>
+    <div className={styles.workspace}><header className={`${styles.topbar} minipay-desktop-header`}><div className={styles.topStart}><Button className={styles.mobileMenuButton} type="text" aria-label="打开商户端导航" icon={<MenuOutlined />} onClick={()=>setMobileMenuOpen(true)} /><Button className={styles.collapse} type="text" onClick={() => setCollapsed(value => !value)}>{collapsed ? '»' : '«'}</Button><Button type="text" onClick={() => void queryClient.invalidateQueries()}>刷新</Button></div><div className={styles.topEnd}>{selected && <><span className={styles.muted} style={{ fontSize: 12 }} title="登录账号手机号，为名下所有商户/应用的归属身份">账号 {maskPhone(session.data?.phone)}</span><Select className={styles.merchantPicker} value={selected.merchantId} onChange={value => { setSelectedId(value); localStorage.setItem('minipay-selected-merchant', value); }} options={merchants.data?.map(item => ({ label: `${item.name}（${item.merchantNo}）`, value: item.merchantId }))} /></>}<Dropdown menu={accountMenu} trigger={['click']}><Button type="text"><span className={styles.avatar}>{selected?.name.slice(0, 1) ?? '商'}</span>{!collapsed && <span>{selected?.name ?? '商家账号'}</span>}</Button></Dropdown></div></header>
       <div className={styles.breadcrumb}>商户平台&nbsp;&nbsp;/&nbsp;&nbsp;{title[0]}</div><main className={`${styles.content} minipay-desktop-content`}><div className={styles.pageHeading}><div><h1>{title[0]}</h1><p>{title[1]}</p></div>{selected && <Tag color={statusColor(selected.status)}>{zh.status(selected.status)}</Tag>}</div>{location.pathname === '/onboarding' ? <OnboardingPage onChanged={() => void merchants.refetch()} /> : selected ? <PageContent path={location.pathname} merchant={selected} /> : <Empty description="请先提交商户入驻申请" />}</main>
     </div>
   </div>;
@@ -139,12 +139,12 @@ function ProfilePage({ merchant }: { merchant: Merchant }) {
   const { message } = App.useApp(); const queryClient = useQueryClient(); const [profileForm] = Form.useForm(); const [passwordForm] = Form.useForm();
   const session = useQuery({ queryKey: ['merchant-session'], queryFn: merchantApi.session, retry: false });
   const passwordConfigured = session.data?.passwordConfigured === true;
+  const accountPhone = session.data?.phone ?? merchant.contactMobile;
   // 运营方创建/代填的资料自动回填，商户只需补充缺失字段后保存即可进入。
   useEffect(() => profileForm.setFieldsValue({
     shortName: merchant.shortName,
     mccCode: merchant.category,
     contactName: merchant.contactName,
-    contactMobile: merchant.contactMobile,
     contactEmail: merchant.contactEmail ?? undefined,
     address: merchant.address ?? undefined,
     location: merchant.latitude != null && merchant.longitude != null
@@ -171,8 +171,8 @@ function ProfilePage({ merchant }: { merchant: Merchant }) {
         <Form.Item name="shortName" label="商户简称" rules={[{ required: true }, { min: 2, max: 32, message: '商户简称长度为 2～32 个字符' }]}><Input maxLength={32} placeholder="请输入对外展示简称" /></Form.Item>
         <Form.Item name="mccCode" label="经营类目" rules={[{ required: true }]}><Select options={categoryOptions(merchant.category)} /></Form.Item>
         <Form.Item name="contactName" label="联系人" rules={[{ required: true }, { min: 2, max: 64, message: '联系人姓名长度为 2～64 个字符' }]}><Input maxLength={64} /></Form.Item>
-        <Form.Item name="contactMobile" label="联系电话" extra="为登录账号手机号，不可修改">
-          <Input disabled maxLength={11} />
+        <Form.Item label="联系电话" extra="与当前 MiniPay 登录手机号同步，不可在商户端修改">
+          <Input disabled value={accountPhone ?? ''} />
         </Form.Item>
         <Form.Item name="contactEmail" label="联系邮箱" rules={[{ type: 'email', message: '请输入正确的邮箱地址' }]}><Input maxLength={254} /></Form.Item>
         <Form.Item name="address" label="经营地址" rules={[{ max: 200, message: '经营地址不能超过 200 个字符' }]}><Input maxLength={200} placeholder="可在地图上选点自动填充" /></Form.Item>
